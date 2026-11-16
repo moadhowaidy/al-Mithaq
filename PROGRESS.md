@@ -19,6 +19,8 @@ The full brief is saved in [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md); code 
 
 Milestones 1–3 were built and checked together and share one commit.
 
+**Where the work stopped (16 Nov 2026):** the session's usage limit was reached right after the page build started, so milestones 4–6 have not begun. The page files in `src/pages/` (except `NotFound.tsx`) are still placeholders, and `src/components/home|sectors|products|about|partners|contact/` do not exist yet. Next steps: build those pages to the brief and `docs/CONVENTIONS.md`, then run the final checks (milestone 7) and write the final report.
+
 ## Stack
 
 React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `src/index.css`) · React Router 8 (declarative `BrowserRouter`) · framer-motion 14 (light `LazyMotion` mode) · lucide-react · `@fontsource` (Noto Kufi Arabic, Barlow, Barlow Semi Condensed).
