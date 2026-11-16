@@ -1,0 +1,616 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   Mithaq design tokens. Only these colours are used on the site;
+   opacity variants (e.g. bg-primary/95, border-steel/30) are allowed
+   for lines, glows and overlays. The default Tailwind palette is removed.
+   ===================================================================== */
+@theme {
+  --color-*: initial;
+  --color-primary: #0e2240; /* Covenant Navy: header, page openings, headings, body text, footer */
+  --color-background: #f6f3ec; /* Lane White: page background, light sections */
+  --color-accent: #eaa620; /* Signal Gold: primary buttons, lane dashes, hairlines and numbers on navy */
+  --color-muted: #4e5d70; /* secondary text on light backgrounds */
+  --color-asphalt: #1d2228; /* product stages and product page hero */
+  --color-steel: #8d98a5; /* secondary text and lines on navy only */
+  --color-surface: #ffffff; /* cards, inputs */
+  --color-line: #ddd6c8; /* hairlines and borders on light backgrounds */
+
+  --font-*: initial;
+  --font-arabic: "Noto Kufi Arabic", "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-latin: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Barlow Semi Condensed", "Barlow", ui-sans-serif, system-ui, sans-serif;
+
+  --container-site: 1200px; /* max-w-site */
+  --container-text: 640px; /* max-w-text: text columns */
+
+  --ease-gateway: cubic-bezier(0.22, 1, 0.36, 1); /* reveals */
+  --ease-sweep: cubic-bezier(0.76, 0, 0.24, 1); /* the language sweep */
+
+  --shadow-lift: 0 16px 40px rgba(14, 34, 64, 0.1);
+  --radius-card: 16px;
+  --radius-field: 12px;
+}
+
+/* =====================================================================
+   Base
+   ===================================================================== */
+@layer base {
+  :root {
+    --gutter: 1.25rem;
+    --header-h: 80px;
+    /* Context values, switched by .on-dark / .on-light */
+    --focus-ring: var(--color-primary);
+    --underline: var(--color-primary);
+    --btn-sweep: var(--color-primary);
+    --btn-sweep-text: var(--color-background);
+  }
+  @media (min-width: 768px) {
+    :root {
+      --gutter: 2rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    :root {
+      --gutter: 2.5rem;
+    }
+  }
+
+  html {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  body {
+    min-height: 100svh;
+    font-size: 17px;
+    font-variant-numeric: lining-nums;
+    background-color: var(--color-background);
+    color: var(--color-primary);
+    overflow-x: clip;
+  }
+
+  /* The body font follows the page language. */
+  html[lang="ar"] body {
+    font-family: var(--font-arabic);
+    line-height: 1.9;
+  }
+  html[lang="en"] body {
+    font-family: var(--font-latin);
+    line-height: 1.7;
+  }
+
+  /* Arabic is never letter-spaced: spacing breaks the joined letters. */
+  :lang(ar) {
+    letter-spacing: 0 !important;
+  }
+
+  ::selection {
+    background-color: rgb(234 166 32 / 0.35);
+    color: var(--color-primary);
+  }
+
+  /* Always-visible focus ring: navy on light grounds, gold on navy (set by .on-dark). */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Anchored sections clear the sticky header. */
+  [id] {
+    scroll-margin-top: calc(var(--header-h) + 24px);
+  }
+}
+
+/* =====================================================================
+   Components
+   ===================================================================== */
+@layer components {
+  /* ----- Grounds: set text colour and the colours of focus rings, underlines and button sweeps ----- */
+  .on-dark {
+    --focus-ring: var(--color-accent);
+    --underline: var(--color-accent);
+    --btn-sweep: var(--color-background);
+    --btn-sweep-text: var(--color-primary);
+    color: var(--color-background);
+  }
+  .on-light {
+    --focus-ring: var(--color-primary);
+    --underline: var(--color-primary);
+    --btn-sweep: var(--color-primary);
+    --btn-sweep-text: var(--color-background);
+    color: var(--color-primary);
+  }
+
+  /* ----- Layout ----- */
+  .container-site {
+    width: 100%;
+    max-width: calc(var(--container-site) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  /* Section padding: 80 px on mobile, 128 px on desktop. */
+  .section {
+    padding-block: 5rem;
+  }
+  @media (min-width: 1024px) {
+    .section {
+      padding-block: 8rem;
+    }
+  }
+
+  /* ----- Type scale (language-aware through :lang) ----- */
+  .h1 {
+    font-family: var(--font-latin);
+    font-weight: 700;
+    font-size: clamp(2.75rem, 2.025rem + 3.094vw, 4.5rem); /* 44 → 72 px */
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .h1:lang(ar) {
+    font-family: var(--font-arabic);
+    font-weight: 900;
+    font-size: clamp(2.5rem, 1.878rem + 2.652vw, 4rem); /* 40 → 64 px */
+    line-height: 1.35;
+  }
+  .h2 {
+    font-family: var(--font-latin);
+    font-weight: 700;
+    font-size: clamp(2rem, 1.586rem + 1.768vw, 3rem); /* 32 → 48 px */
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .h2:lang(ar) {
+    font-family: var(--font-arabic);
+    font-weight: 800;
+    font-size: clamp(1.875rem, 1.564rem + 1.326vw, 2.625rem); /* 30 → 42 px */
+    line-height: 1.45;
+  }
+  .h3 {
+    font-family: var(--font-latin);
+    font-weight: 600;
+    font-size: 1.375rem;
+    line-height: 1.25;
+  }
+  .h3:lang(ar) {
+    font-family: var(--font-arabic);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.6;
+  }
+  /* Labels and kickers: Barlow Semi Condensed, uppercase, tracked (English only). */
+  .kicker {
+    font-family: var(--font-label);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.4;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .kicker:lang(ar) {
+    font-family: var(--font-arabic);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .lead {
+    font-size: clamp(1.125rem, 1.04rem + 0.36vw, 1.3125rem); /* 18 → 21 px */
+    line-height: 1.6;
+  }
+  .lead:lang(ar) {
+    line-height: 1.9;
+  }
+  /* Key figures: Barlow 700, 44 px, in both languages. */
+  .figure-value {
+    font-family: var(--font-latin);
+    font-weight: 700;
+    font-size: 2.75rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  /* Large decorative numbers ("01"–"08"): Barlow 300, 120 px, line colour. */
+  .deco-number {
+    font-family: var(--font-latin);
+    font-weight: 300;
+    font-size: clamp(4.5rem, 3.2rem + 4vw, 7.5rem);
+    line-height: 1;
+    color: var(--color-line);
+  }
+  /* Section numbers and other figures that stay in Barlow in both languages. */
+  .font-num {
+    font-family: var(--font-latin);
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* ----- Buttons: pills, 52 px tall, 28 px side padding, filled by a sweep from the inline start ----- */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    min-height: 52px;
+    padding-inline: 28px;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    font-family: var(--font-latin);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 0.45s var(--ease-gateway),
+      border-color 0.45s var(--ease-gateway);
+  }
+  .btn:lang(ar) {
+    font-family: var(--font-arabic);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--btn-sweep);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.55s var(--ease-gateway);
+  }
+  [dir="rtl"] .btn::before {
+    transform-origin: right center;
+  }
+  .btn:hover,
+  .btn:focus-visible {
+    color: var(--btn-sweep-text);
+  }
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: scaleX(1);
+  }
+  .btn-sm {
+    min-height: 44px;
+    padding-inline: 22px;
+    font-size: 0.9375rem;
+  }
+  .btn-sm:lang(ar) {
+    font-size: 0.875rem;
+  }
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+  }
+  .btn-outline-light {
+    border-color: rgb(246 243 236 / 0.6);
+    color: var(--color-background);
+    --btn-sweep: var(--color-background);
+    --btn-sweep-text: var(--color-primary);
+  }
+  .btn-outline-light:hover,
+  .btn-outline-light:focus-visible {
+    border-color: var(--color-background);
+  }
+  .btn-outline-dark {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    --btn-sweep: var(--color-primary);
+    --btn-sweep-text: var(--color-background);
+  }
+  .btn-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+  }
+  .btn-arrow {
+    transition: translate 0.45s var(--ease-gateway);
+  }
+  .btn:hover .btn-arrow,
+  .btn:focus-visible .btn-arrow {
+    translate: 4px 0;
+  }
+  [dir="rtl"] .btn:hover .btn-arrow,
+  [dir="rtl"] .btn:focus-visible .btn-arrow {
+    translate: -4px 0;
+  }
+
+  /* ----- Cards: white, 1 px line border, radius 16 px, soft shadow only on hover ----- */
+  .card {
+    --focus-ring: var(--color-primary);
+    --underline: var(--color-primary);
+    --btn-sweep: var(--color-primary);
+    --btn-sweep-text: var(--color-background);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    color: var(--color-primary);
+  }
+  .card-interactive {
+    position: relative;
+    transition:
+      transform 0.5s var(--ease-gateway),
+      box-shadow 0.5s var(--ease-gateway);
+  }
+  /* Gold hairline drawn across the top edge on hover (decorative). */
+  .card-interactive::before {
+    content: "";
+    position: absolute;
+    inset-inline: 16px;
+    top: -1px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.6s var(--ease-gateway);
+  }
+  [dir="rtl"] .card-interactive::before {
+    transform-origin: right center;
+  }
+  .card-interactive:hover,
+  .card-interactive:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lift);
+  }
+  .card-interactive:hover::before,
+  .card-interactive:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  /* ----- Links: underline drawn in from the reading start ----- */
+  .link-draw {
+    background-image: linear-gradient(var(--underline), var(--underline));
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    background-position: left 100%;
+    padding-bottom: 2px;
+    transition: background-size 0.5s var(--ease-gateway);
+  }
+  [dir="rtl"] .link-draw {
+    background-position: right 100%;
+  }
+  .link-draw:hover,
+  .link-draw:focus-visible {
+    background-size: 100% 1px;
+  }
+  /* Inline text links keep a faint underline so they read as links without hover. */
+  .link-inline {
+    background-image:
+      linear-gradient(var(--underline), var(--underline)),
+      linear-gradient(color-mix(in srgb, currentColor 35%, transparent), color-mix(in srgb, currentColor 35%, transparent));
+    background-repeat: no-repeat;
+    background-size:
+      0% 1px,
+      100% 1px;
+    background-position:
+      left 100%,
+      left 100%;
+    padding-bottom: 2px;
+    transition: background-size 0.5s var(--ease-gateway);
+  }
+  [dir="rtl"] .link-inline {
+    background-position:
+      right 100%,
+      right 100%;
+  }
+  .link-inline:hover,
+  .link-inline:focus-visible {
+    background-size:
+      100% 1px,
+      100% 1px;
+  }
+
+  /* ----- Chips (filters, product links) ----- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding-inline: 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 9999px;
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: 500;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.3s var(--ease-gateway),
+      color 0.3s var(--ease-gateway),
+      border-color 0.3s var(--ease-gateway);
+  }
+  .chip:hover {
+    border-color: var(--color-primary);
+  }
+  .chip[aria-pressed="true"],
+  .chip[aria-current="page"],
+  .chip[aria-current="true"] {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  /* ----- Form fields: 52 px tall, radius 12 px, white ----- */
+  .field {
+    display: block;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-field);
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font: inherit;
+    line-height: 1.5;
+    transition:
+      border-color 0.3s var(--ease-gateway),
+      box-shadow 0.3s var(--ease-gateway);
+  }
+  .field::placeholder {
+    color: var(--color-muted);
+    opacity: 1;
+  }
+  .field:hover {
+    border-color: var(--color-muted);
+  }
+  .field:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+  }
+  /* No red in the palette: invalid fields get a heavier navy border plus a text message. */
+  .field[aria-invalid="true"] {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+  }
+  textarea.field {
+    min-height: 144px;
+    padding-block: 14px;
+    resize: vertical;
+  }
+  select.field {
+    appearance: none;
+    padding-inline-end: 48px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%230E2240' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    background-size: 12px 8px;
+  }
+  [dir="rtl"] select.field {
+    background-position: left 18px center;
+  }
+
+  /* ----- Graphic devices from the identity ----- */
+  /* Very subtle grain on navy sections (inline SVG noise at 3 %). */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+  /* The Gateway band: a 40 px strip of the brand tile (image set inline from data). */
+  .gateway-band {
+    height: 40px;
+    background-repeat: repeat-x;
+    background-size: auto 40px;
+    background-position: center top;
+  }
+  /* Lane dashes: gold rounded bars, 40 × 6 px with 32 px gaps (dividers on navy). */
+  .lane-dashes {
+    height: 6px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='6'%3E%3Crect width='40' height='6' rx='3' fill='%23EAA620'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-size: 72px 6px;
+    background-position: left center;
+  }
+  /* In RTL the row starts with a full dash at the right edge (the tile is dash + gap). */
+  [dir="rtl"] .lane-dashes {
+    background-position: right -32px center;
+  }
+
+  /* The quote band's inline-start corner is cut at the logo's 50° road angle (tan 50° = 1.19175). */
+  .quote-band {
+    --cut: 56px;
+    clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--cut) * 1.19175));
+  }
+  [dir="rtl"] .quote-band {
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% calc(var(--cut) * 1.19175), 100% 100%, 0 100%);
+  }
+  @media (min-width: 1024px) {
+    .quote-band {
+      --cut: 128px;
+    }
+  }
+
+  /* Navigation labels reserve their bold width, so the active weight never shifts the row. */
+  .nav-label {
+    display: inline-flex;
+    flex-direction: column;
+  }
+  .nav-label::after {
+    content: attr(data-label);
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: 700;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* ----- Skip link ----- */
+  .skip-link {
+    position: fixed;
+    top: 14px;
+    inset-inline-start: 16px;
+    z-index: 200;
+    padding: 12px 22px;
+    border-radius: 9999px;
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    font-weight: 600;
+    transform: translateY(-200%);
+    transition: transform 0.3s var(--ease-gateway);
+  }
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================================
+   Motion safety nets
+   ===================================================================== */
+
+/* Pre-rendered pages carry the hidden first frame of their reveals. If the script
+   has not started after 2.5 s (or never does), show the content anyway. */
+@keyframes mithaq-reveal-fallback {
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+html:not(.js-ready) #root [style*="opacity:0"],
+html:not(.js-ready) #root [style*="clip-path:inset"] {
+  animation: mithaq-reveal-fallback 0.01s linear 2.5s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-interactive:hover,
+  .card-interactive:focus-within {
+    transform: none;
+  }
+}
