@@ -15,7 +15,12 @@ import { useIsomorphicLayoutEffect, useLanguage, useMountedBySwitch } from '../.
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 export const REVEAL_DURATION = 0.7;
 export const REVEAL_STAGGER = 0.08;
-export const REVEAL_VIEWPORT = { once: true, margin: '0px 0px -10% 0px' } as const;
+/**
+ * Elements reveal when they reach the lower 90 % of the screen. The huge top margin counts content
+ * that was scrolled past (or skipped by a jump to an anchor, or straddling the top edge after a
+ * language switch) as seen, so it is already there on the way back instead of fading in late.
+ */
+export const REVEAL_VIEWPORT = { once: true, margin: '100000px 0px -10% 0px' } as const;
 
 type RevealTag =
   | 'div'
@@ -40,14 +45,20 @@ interface RevealBaseProps {
   style?: CSSProperties;
   id?: string;
   children?: ReactNode;
+  /** Passed through to the element (e.g. role="list" on a <ul>). */
+  role?: string;
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
 }
 
 /** One element that fades up when it enters the screen. */
-export function Reveal({ as = 'div', className, style, id, children, delay = 0, y = 24 }: RevealBaseProps & { delay?: number; y?: number }) {
+export function Reveal({ as = 'div', className, style, id, children, delay = 0, y = 24, ...aria }: RevealBaseProps & { delay?: number; y?: number }) {
   const { justSwitched } = useLanguage();
   const Component = m[as] as typeof m.div;
   return (
     <Component
+      {...aria}
       id={id}
       className={className}
       style={style}
@@ -62,11 +73,12 @@ export function Reveal({ as = 'div', className, style, id, children, delay = 0, 
 }
 
 /** A group whose <RevealItem> children fade up one after another (80 ms apart). */
-export function RevealGroup({ as = 'div', className, style, id, children, stagger = REVEAL_STAGGER, delay = 0 }: RevealBaseProps & { stagger?: number; delay?: number }) {
+export function RevealGroup({ as = 'div', className, style, id, children, stagger = REVEAL_STAGGER, delay = 0, ...aria }: RevealBaseProps & { stagger?: number; delay?: number }) {
   const { justSwitched } = useLanguage();
   const Component = m[as] as typeof m.div;
   return (
     <Component
+      {...aria}
       id={id}
       className={className}
       style={style}
@@ -84,11 +96,12 @@ export function RevealGroup({ as = 'div', className, style, id, children, stagge
 }
 
 /** A child of <RevealGroup> (at any depth). */
-export function RevealItem({ as = 'div', className, style, id, children, y = 24 }: RevealBaseProps & { y?: number }) {
+export function RevealItem({ as = 'div', className, style, id, children, y = 24, ...aria }: RevealBaseProps & { y?: number }) {
   const { justSwitched } = useLanguage();
   const Component = m[as] as typeof m.div;
   return (
     <Component
+      {...aria}
       id={id}
       className={className}
       style={style}
@@ -103,44 +116,91 @@ export function RevealItem({ as = 'div', className, style, id, children, y = 24 
 }
 
 /**
- * Image reveal: a clip wipe in the reading direction (left → right in English, right → left in Arabic).
- * `immediate` plays it on mount (above the fold) instead of when it enters the screen.
+ * Image reveal: a clip wipe from the reading start (left → right in English, right → left in
+ * Arabic), or from a fixed edge with `from`. `immediate` plays it on mount (above the fold)
+ * instead of when it enters the screen.
+ *
+ * Two elements: the outer one (className, style) is never clipped and watches the screen; the
+ * inner one (innerClassName, full size by default) is wiped in. Chromium does not report a clipped
+ * element as in view while it straddles the top of the screen, so a wrapper watching itself could
+ * stay hidden after a language switch or a restored scroll position.
+ *
+ * Browsers never start a lazy image that is fully clipped, so lazy images inside switch to eager
+ * loading once the outer element is within 800 px of the screen; they are ready when the wipe opens.
  */
 export function ClipReveal({
   className,
+  innerClassName,
   style,
   children,
   delay = 0,
   duration = 1.1,
   immediate = false,
+  from = 'start',
 }: {
   className?: string;
+  innerClassName?: string;
   style?: CSSProperties;
   children?: ReactNode;
   delay?: number;
   duration?: number;
   immediate?: boolean;
+  /** Edge the wipe starts from: the reading start (default), or a fixed side (e.g. 'right' for an Arabic word). */
+  from?: 'start' | 'left' | 'right';
 }) {
   const { dir, justSwitched } = useLanguage();
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const lazy = node.querySelectorAll<HTMLImageElement>('img[loading="lazy"]');
+    if (lazy.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        lazy.forEach((img) => {
+          img.loading = 'eager';
+        });
+        observer.disconnect();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const inner = cx('h-full w-full', innerClassName);
   if (reduce) {
     return (
-      <div className={className} style={style}>
-        {children}
+      <div ref={ref} className={className} style={style}>
+        <div className={inner}>{children}</div>
       </div>
     );
   }
-  const hidden = dir === 'rtl' ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)';
-  const shown = { clipPath: 'inset(0% 0% 0% 0%)' };
+  const edge = from === 'start' ? (dir === 'rtl' ? 'right' : 'left') : from;
   return (
     <m.div
+      ref={ref}
       className={className}
       style={style}
-      initial={{ clipPath: hidden }}
-      {...(immediate ? { animate: shown } : { whileInView: shown, viewport: REVEAL_VIEWPORT })}
-      transition={justSwitched ? { duration: 0 } : { duration, ease: EASE_OUT, delay }}
+      initial="hidden"
+      {...(immediate ? { animate: 'visible' } : { whileInView: 'visible', viewport: REVEAL_VIEWPORT })}
+      variants={{ hidden: {}, visible: {} }}
     >
-      {children}
+      <m.div
+        className={inner}
+        variants={{
+          hidden: { clipPath: edge === 'right' ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)' },
+          visible: {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            transition: justSwitched ? { duration: 0 } : { duration, ease: EASE_OUT, delay },
+          },
+        }}
+      >
+        {children}
+      </m.div>
     </m.div>
   );
 }
@@ -189,7 +249,9 @@ export function CountUp({ value, className, duration = 1.6 }: { value: string; c
   const ref = useRef<HTMLSpanElement>(null);
   const reduce = useReducedMotion();
   const mountedBySwitch = useMountedBySwitch();
-  const inView = useInView(ref, { once: true, margin: '0px 0px -10% 0px' });
+  // The huge top margin counts figures that were scrolled past (or skipped by a jump to an
+  // anchor) as seen: they finish counting off screen and show their final value on the way back.
+  const inView = useInView(ref, { once: true, margin: '100000px 0px -10% 0px' });
   const numbers = useMemo(() => parseNumbers(value), [value]);
   const animatable = !reduce && !mountedBySwitch && numbers.length > 0;
   const [progress, setProgress] = useState(1);

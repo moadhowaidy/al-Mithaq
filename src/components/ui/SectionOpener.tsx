@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { m } from 'framer-motion';
 import { cx } from '../../data';
 import { RevealGroup, RevealItem, useSwitchHeading } from './Reveal';
@@ -8,7 +9,7 @@ interface SectionOpenerProps {
   /** Short label next to the number, e.g. copy.home.sectorsTitle. */
   label: string;
   /** The section's H2. */
-  title: string;
+  title: ReactNode;
   /** Optional lead paragraph. */
   intro?: string;
   /** light: on Lane White / white · dark: on navy or asphalt. */
@@ -57,7 +58,7 @@ export default function SectionOpener({
       {intro ? (
         <RevealItem
           as="p"
-          className={cx('lead mt-5 max-w-text', align === 'center' && 'mx-auto', dark ? 'text-steel' : 'text-muted')}
+          className={cx('lead mt-5 max-w-text text-pretty', align === 'center' && 'mx-auto', dark ? 'text-steel' : 'text-muted')}
         >
           {intro}
         </RevealItem>

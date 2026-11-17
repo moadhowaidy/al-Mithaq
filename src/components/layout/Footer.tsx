@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone } from 'lucide-react';
 import { brand, company, contact, copy, langPath, navItems, sectors, telLink } from '../../data';
 import { useLanguage } from '../../data/i18n';
 import GatewayBand from '../ui/GatewayBand';
+import { bindAmpersand } from '../ui/Typeset';
 
 /**
  * Navy footer with the dark Gateway band along its top edge: the bilingual logo and slogan,
@@ -18,7 +19,7 @@ export default function Footer() {
       <GatewayBand />
       <div className="container-site grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.35fr_0.8fr_1.15fr_1.1fr] lg:gap-10 lg:py-24">
         <div className="md:col-span-2 lg:col-span-1">
-          <Link to={langPath(lang)} className="inline-block rounded-sm">
+          <Link to={langPath(lang)} className="inline-flex min-h-11 items-center rounded-sm">
             <img
               src={logo.src}
               width={logo.width}
@@ -37,7 +38,7 @@ export default function Footer() {
           <ul className="mt-6 space-y-1">
             {navItems.map((item) => (
               <li key={item.key}>
-                <Link to={langPath(lang, item.path)} className="inline-flex min-h-11 items-center">
+                <Link to={langPath(lang, item.path)} className="inline-flex min-h-11 min-w-11 items-center">
                   <span className="link-draw">{t(copy.nav[item.key])}</span>
                 </Link>
               </li>
@@ -50,8 +51,8 @@ export default function Footer() {
           <ul className="mt-6 space-y-1">
             {sectors.map((sector) => (
               <li key={sector.id}>
-                <Link to={`${langPath(lang, '/sectors')}#${sector.id}`} className="inline-flex min-h-11 items-center py-1.5">
-                  <span className="link-draw leading-snug">{t(sector.name)}</span>
+                <Link to={`${langPath(lang, '/sectors')}#${sector.id}`} className="inline-flex min-h-11 min-w-11 items-center py-1.5">
+                  <span className="link-draw leading-snug">{bindAmpersand(t(sector.name))}</span>
                 </Link>
               </li>
             ))}

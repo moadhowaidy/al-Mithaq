@@ -1,6 +1,5 @@
-import type { CSSProperties } from 'react';
-import { m } from 'framer-motion';
-import { useReducedMotion } from 'framer-motion';
+import { useRef, type CSSProperties } from 'react';
+import { m, useInView, useReducedMotion } from 'framer-motion';
 import { cx } from '../../data';
 
 /** Official geometry of the logo (viewBox 0 0 700 630). Do not edit. */
@@ -27,7 +26,7 @@ export type DashMode = 'static' | 'dim' | 'lit' | 'loop';
 function dashMotion(mode: DashMode, index: number) {
   switch (mode) {
     case 'dim':
-      return { initial: { opacity: 0.3 }, animate: { opacity: 0.3 } };
+      return { initial: { opacity: 0.3 }, animate: { opacity: 0.3 }, transition: { duration: 0.3 } };
     case 'lit':
       return { initial: { opacity: 0.3 }, animate: { opacity: 1 }, transition: { delay: index * 0.02, duration: 0.08 } };
     case 'loop':
@@ -41,16 +40,22 @@ function dashMotion(mode: DashMode, index: number) {
   }
 }
 
-/** The five gold dashes, as <path> elements for use inside any <svg viewBox="0 0 700 630">. */
+/**
+ * The five gold dashes, as <path> elements for use inside any <svg viewBox="0 0 700 630">.
+ * The loop only runs while the mark is on screen (and never under reduced motion).
+ */
 export function GateDashes({ mode = 'static' }: { mode?: DashMode }) {
   const reduce = useReducedMotion();
-  const resolved: DashMode = reduce && (mode === 'loop' || mode === 'lit') ? 'static' : mode;
+  const group = useRef<SVGGElement>(null);
+  const onScreen = useInView(group, { margin: '120px 0px' });
+  let resolved: DashMode = reduce && (mode === 'loop' || mode === 'lit') ? 'static' : mode;
+  if (resolved === 'loop' && !onScreen) resolved = 'dim';
   return (
-    <>
+    <g ref={group}>
       {DASHES.map((d, index) => (
         <m.path key={d} d={d} className="fill-accent" {...dashMotion(resolved, index)} />
       ))}
-    </>
+    </g>
   );
 }
 

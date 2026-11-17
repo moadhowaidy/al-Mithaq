@@ -55,7 +55,7 @@ export default function Navbar() {
       )}
     >
       <div className="container-site flex h-20 items-center justify-between gap-6">
-        <Link to={langPath(lang)} className="shrink-0 rounded-sm">
+        <Link to={langPath(lang)} className="flex min-h-11 shrink-0 items-center rounded-sm">
           <img
             src={logo.src}
             width={logo.width}
@@ -75,7 +75,7 @@ export default function Navbar() {
                   <NavLink
                     to={langPath(lang, item.path)}
                     end={item.path === ''}
-                    className="group relative inline-flex h-11 items-center text-[15px] font-medium text-background aria-[current=page]:font-bold"
+                    className="group relative inline-flex h-11 min-w-11 items-center text-[15px] font-medium text-background aria-[current=page]:font-bold"
                   >
                     {({ isActive }) => (
                       <>
@@ -186,7 +186,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: (restoreFocus: 
           transition={{ duration: 0.5, ease: EASE_OUT }}
         >
           <div className="container-site flex h-20 shrink-0 items-center justify-between gap-4">
-            <Link to={langPath(lang)} className="shrink-0 rounded-sm" onClick={() => onClose(false)}>
+            <Link to={langPath(lang)} className="flex min-h-11 shrink-0 items-center rounded-sm" onClick={() => onClose(false)}>
               <img src={logo.src} width={logo.width} height={logo.height} alt={t(copy.a11y.homeLink)} className="h-9 w-auto" />
             </Link>
             <div className="flex items-center gap-3">

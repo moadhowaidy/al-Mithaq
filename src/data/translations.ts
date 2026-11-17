@@ -59,6 +59,8 @@ export const copy = {
     ],
     partnersTitle: { ar: "شركاؤنا", en: "Our partners" },
     partnersBody: { ar: "المصنّعون والموردون الذين نعمل معهم.", en: "The manufacturers and suppliers we work with." },
+    // Added during the build: alt text of the G2200 illustration on the featured-product stage.
+    featuredImageAlt: { ar: "منظر جانبي لكانسة الطرق G2200", en: "Side view of the G2200 road sweeper" },
   },
   quoteBand: {
     title: { ar: "تحتاج معدات لمشروعك؟", en: "Need equipment for your project?" },
@@ -121,6 +123,10 @@ export const copy = {
     logoTitle: { ar: "قصة الشعار", en: "The story behind the logo" },
     logoName: { ar: "البوابة", en: "The Gateway" },
     logoAlt: { ar: "شعار ميثاق: بوابة تقف فوق طريق يمتد إلى الأفق", en: "The Mithaq logo: a gate standing over a road that runs to the horizon" },
+    // Added during the build: the "Company facts" block, shown once the founding year or registration is confirmed.
+    factsTitle: { ar: "بيانات الشركة", en: "Company facts" },
+    founded: { ar: "سنة التأسيس", en: "Founded" },
+    registration: { ar: "بيانات التسجيل", en: "Registration" },
   },
   partnersPage: {
     title: { ar: "الشركاء", en: "Partners" },
@@ -132,6 +138,9 @@ export const copy = {
     becomeButton: { ar: "راسلنا بخصوص الشراكة", en: "Email us about partnering" },
     // Added during the build: link label on a partner tile that has a website.
     visitWebsite: { ar: "زيارة الموقع", en: "Visit website" },
+    // Added during the build: the two small labels on a partner tile.
+    country: { ar: "البلد", en: "Country" },
+    sectors: { ar: "القطاعات", en: "Sectors" },
   },
   contactPage: {
     title: { ar: "تواصل معنا", en: "Contact us" },
@@ -170,6 +179,10 @@ export const copy = {
     noProducts: { ar: "لا توجد منتجات مدرجة في هذا القطاع بعد", en: "No products listed in this sector yet" },
     errorSummary: { ar: "يرجى مراجعة الحقول المشار إليها.", en: "Please check the highlighted fields." },
     opened: { ar: "فُتح واتساب أعمال برسالتك. أرسلها من هناك لإتمام الطلب.", en: "WhatsApp Business has opened with your message. Send it there to complete your request." },
+    // Added during the build: the product line of the quote message, the form's intro line and the email confirmation.
+    productLine: { ar: "المنتج", en: "Product" },
+    intro: { ar: "املأ النموذج، وسيُفتح طلبك جاهزاً للإرسال في واتساب أعمال.", en: "Fill in the form and your request opens in WhatsApp Business, ready to send." },
+    openedEmail: { ar: "فُتح تطبيق البريد الإلكتروني برسالتك. أرسلها من هناك لإتمام الطلب.", en: "Your email app has opened with your message. Send it there to complete your request." },
   },
   footer: {
     pages: { ar: "الصفحات", en: "Pages" },

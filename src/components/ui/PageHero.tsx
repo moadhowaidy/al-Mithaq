@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { m } from 'framer-motion';
 import { cx } from '../../data';
 import GatewayBand from './GatewayBand';
@@ -24,15 +24,16 @@ interface PageHeroProps {
  */
 export default function PageHero({ kicker, title, lead, children, before, className }: PageHeroProps) {
   const entrance = useEntrance();
+  const titleId = useId();
   return (
-    <section className={cx('on-dark grain relative overflow-hidden bg-primary', className)}>
+    <section aria-labelledby={titleId} className={cx('on-dark grain relative overflow-hidden bg-primary', className)}>
       <div className="container-site relative pb-28 pt-16 md:pb-32 md:pt-24 lg:pb-36 lg:pt-28">
         {before ? <m.div className="mb-10" {...entrance(0)}>{before}</m.div> : null}
         <m.p className="kicker text-accent" {...entrance(0)}>
           {kicker}
         </m.p>
         <m.span aria-hidden="true" className="mt-4 block h-px w-12 bg-accent" {...entrance(1)} />
-        <m.h1 className="h1 mt-6 max-w-[20ch] text-background" {...entrance(1, 'heading')}>
+        <m.h1 id={titleId} className="h1 mt-6 max-w-[20ch] text-background" {...entrance(1, 'heading')}>
           {title}
         </m.h1>
         {lead ? (

@@ -140,7 +140,7 @@ function LiveRegion() {
   const { lang } = useLanguage();
   const { announcement } = useLanguageTransition();
   return (
-    <div role="status" aria-live="polite" lang={lang} className="sr-only">
+    <div id="language-status" role="status" aria-live="polite" lang={lang} className="sr-only">
       {announcement}
     </div>
   );
@@ -174,6 +174,10 @@ function ScrollManager() {
   return null;
 }
 
+/**
+ * Scrolls the #hash target into view and moves focus to it, so keyboard and screen-reader users
+ * continue from there (e.g. "Request a quote" lands in the form, not back on the header button).
+ */
 function scrollToHash(hash: string, smooth: boolean) {
   const id = decodeURIComponent(hash.slice(1));
   let attempts = 0;
@@ -182,6 +186,8 @@ function scrollToHash(hash: string, smooth: boolean) {
     if (target) {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: smooth && !reduce ? 'smooth' : 'auto', block: 'start' });
+      if (!target.matches('a[href], button, input, select, textarea, [tabindex]')) target.setAttribute('tabindex', '-1');
+      target.focus({ preventScroll: true });
       return;
     }
     if (attempts++ < 20) window.requestAnimationFrame(tryScroll);

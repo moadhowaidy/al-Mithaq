@@ -219,6 +219,12 @@
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums lining-nums;
   }
+  /* On phones figures are 36 px, so a row of two (e.g. "1.5–2.3") fits a 375 px screen. */
+  @media (max-width: 767.98px) {
+    .figure-value {
+      font-size: 2.25rem;
+    }
+  }
   /* Large decorative numbers ("01"–"08"): Barlow 300, 120 px, line colour. */
   .deco-number {
     font-family: var(--font-latin);
@@ -475,6 +481,12 @@
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
     border-color: var(--color-primary);
+  }
+  .field:disabled {
+    cursor: not-allowed;
+    border-color: var(--color-line);
+    background-color: var(--color-background);
+    color: var(--color-muted);
   }
   /* No red in the palette: invalid fields get a heavier navy border plus a text message. */
   .field[aria-invalid="true"] {
