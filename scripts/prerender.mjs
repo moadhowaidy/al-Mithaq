@@ -16,18 +16,22 @@ const dist = join(root, 'dist');
 const ssrDir = join(root, 'dist-ssr');
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
-const { render, sitePaths, SITE_URL } = await import(pathToFileURL(join(ssrDir, 'entry-server.js')).href);
+const { render, sitePaths, SITE_URL, company } = await import(pathToFileURL(join(ssrDir, 'entry-server.js')).href);
 
 /** React 19 emits a page's hoistable tags (<title>, <meta>, <link>) before the markup. */
 const LEADING_HEAD_TAGS = /^(?:<title>[\s\S]*?<\/title>|<meta\b[^>]*>|<link\b[^>]*>)+/;
 
-function buildPage(url) {
+/** Renders an address; returns its head tags (marked data-ssr, which main.tsx removes) and its markup. */
+function renderParts(url) {
   const { html, lang, dir } = render(url);
   const head = html.match(LEADING_HEAD_TAGS)?.[0] ?? '';
   if (!head.includes('<title>')) throw new Error(`No <title> rendered for ${url}`);
-  const body = html.slice(head.length);
-  // data-ssr marks tags that main.tsx removes before the app renders its own.
   const headTags = head.replace(/<(title|meta|link)\b/g, '<$1 data-ssr').replace(/hrefLang=/g, 'hreflang=');
+  return { headTags, body: html.slice(head.length), lang, dir };
+}
+
+function buildPage(url) {
+  const { headTags, body, lang, dir } = renderParts(url);
 
   // Function replacements, so "$" in page text is never read as a replacement pattern.
   const page = template
@@ -75,5 +79,28 @@ ${entries.join('\n')}
   'utf8',
 );
 console.log(`  wrote sitemap.xml (${entries.length} addresses)`);
+
+// The app shell ("/" and unknown addresses) carries the Arabic home page's tags, rendered from
+// src/data like every page, so link previews of the bare domain follow any copy correction.
+// Its body stays empty and it keeps the no-JavaScript forward to /ar.
+const shellTags = renderParts('/ar').headTags;
+await writeFile(join(dist, 'index.html'), template.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, () => shellTags), 'utf8');
+console.log('  wrote the app shell head tags from src/data');
+
+// The web manifest takes the names from src/data too (public/site.webmanifest is the development copy).
+const manifest = {
+  name: `${company.name.en} · ${company.name.ar}`,
+  short_name: company.shortName.en,
+  start_url: '/',
+  display: 'standalone',
+  background_color: '#F6F3EC',
+  theme_color: '#0E2240',
+  icons: [
+    { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+  ],
+};
+await writeFile(join(dist, 'site.webmanifest'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+console.log('  wrote site.webmanifest from src/data');
 
 await rm(ssrDir, { recursive: true, force: true });

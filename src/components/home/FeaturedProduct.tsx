@@ -9,8 +9,6 @@ import { figureSpan, keepCompounds, setFigures } from '../ui/Typeset';
 
 const FEATURED_ID = 'g2200';
 
-/** The soft dusk glow of the product stages (radial gold at 12 %), as on the Products and product pages. */
-const STAGE_GLOW = 'radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent)';
 
 /**
  * 02 · Featured product: a full-width asphalt stage for the G2200, with the side illustration
@@ -48,8 +46,7 @@ export default function FeaturedProduct() {
           <div className="relative lg:col-span-6 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:self-center xl:col-span-7 xl:col-start-6">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-6 -inset-y-10 md:-inset-x-12"
-              style={{ background: STAGE_GLOW }}
+              className="pointer-events-none absolute -inset-x-6 -inset-y-10 md:-inset-x-12 dusk-glow"
             />
             {/* The wipe switches the lazy image to eager loading before it opens. */}
             <ClipReveal className="relative">

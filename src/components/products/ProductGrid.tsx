@@ -17,6 +17,7 @@ import Button from '../ui/Button';
 import GatewayMark from '../ui/GatewayMark';
 import { LaneDashes } from '../ui/GatewayBand';
 import { CountUp, Reveal, RevealGroup, RevealItem } from '../ui/Reveal';
+import { bindAmpersand } from '../ui/Typeset';
 
 /** Soft gold glow behind the machine on the asphalt stage. */
 const STAGE_GLOW = 'radial-gradient(58% 52% at 50% 58%, rgb(234 166 32 / 0.12), transparent 72%)';
@@ -70,9 +71,9 @@ export default function ProductGrid() {
 
         {/* Keyed by the products shown: when a new selection changes them, its cards rise in (and count up) again. */}
         <RevealGroup key={listKey} className="mt-8 grid gap-6 md:mt-10 lg:mt-12 lg:grid-cols-2 lg:gap-8">
-          {shown.map((product) => (
+          {shown.map((product, index) => (
             <RevealItem key={product.id}>
-              <ProductCard product={product} />
+              <ProductCard product={product} priority={index === 0} />
             </RevealItem>
           ))}
           <RevealItem className={cx(moreWide && 'lg:col-span-2')}>
@@ -149,7 +150,14 @@ function SectorFilter({ active, onSelect }: { active: SectorId | null; onSelect:
 
 function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" className="chip shrink-0" aria-pressed={pressed} onClick={onClick}>
+    <button
+      type="button"
+      className="chip shrink-0"
+      aria-pressed={pressed}
+      onClick={onClick}
+      // In the sideways-scrolling row a chip that receives keyboard focus is brought fully into view.
+      onFocus={(event) => event.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' })}
+    >
       {children}
     </button>
   );
@@ -159,7 +167,8 @@ function FilterChip({ pressed, onClick, children }: { pressed: boolean; onClick:
  * A product card: the machine on an asphalt stage, the sector, the name (the whole card opens
  * the product page), three key figures, "View details" and "Request a quote".
  */
-function ProductCard({ product }: { product: Product }) {
+/** `priority`: the first card's image is in the first screen on phones, so it loads at once. */
+function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const { lang, t } = useLanguage();
   const sector = getSector(product.sector);
   const href = langPath(lang, `/products/${product.id}`);
@@ -174,14 +183,15 @@ function ProductCard({ product }: { product: Product }) {
           width={product.imageSize.width}
           height={product.imageSize.height}
           alt={t(product.name)}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
           decoding="async"
           className="relative h-auto w-[84%] md:w-[68%] lg:w-[84%]"
         />
       </div>
 
       <div className="flex flex-1 flex-col p-6 md:p-8">
-        {sector ? <p className="kicker text-muted">{t(sector.name)}</p> : null}
+        {sector ? <p className="kicker text-balance text-muted">{bindAmpersand(t(sector.name))}</p> : null}
         <h2 id={titleId} className="h3 mt-1 text-balance text-primary">
           <Link to={href} className="inline-flex min-h-11 items-center after:absolute after:inset-0">
             <span className="link-draw">{t(product.name)}</span>

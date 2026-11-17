@@ -48,6 +48,7 @@ export default function Navbar() {
   }, []);
 
   return (
+    <>
     <header
       className={cx(
         'on-dark sticky top-0 z-50 transition-[background-color,backdrop-filter] duration-500',
@@ -117,8 +118,11 @@ export default function Navbar() {
         className={cx('absolute inset-x-0 bottom-0 h-px bg-accent/40 transition-opacity duration-500', scrolled ? 'opacity-100' : 'opacity-0')}
       />
 
-      <MobileMenu open={menuOpen} onClose={closeMenu} />
     </header>
+    {/* Outside the header on purpose: the scrolled header's backdrop-filter would become the
+        containing block of this fixed, full-screen panel and squeeze it to the header's 80 px. */}
+    <MobileMenu open={menuOpen} onClose={closeMenu} />
+    </>
   );
 }
 
@@ -137,9 +141,19 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: (restoreFocus: 
     const previous = root.style.overflow;
     root.style.overflow = 'hidden';
     const frame = window.requestAnimationFrame(() => closeButton.current?.focus());
+    // Everything outside the dialog becomes inert, except the live region that announces a language switch.
+    const outside = Array.from(document.querySelectorAll<HTMLElement>('#root > *')).filter(
+      (element) => !element.contains(panel.current) && element.id !== 'language-status',
+    );
+    outside.forEach((element) => {
+      element.inert = true;
+    });
     return () => {
       window.cancelAnimationFrame(frame);
       root.style.overflow = previous;
+      outside.forEach((element) => {
+        element.inert = false;
+      });
     };
   }, [open]);
 
@@ -217,10 +231,17 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: (restoreFocus: 
                     to={langPath(lang, item.path)}
                     end={item.path === ''}
                     onClick={() => onClose(false)}
-                    className="flex min-h-[4.25rem] items-center justify-between gap-4 py-2 text-[32px] font-bold leading-tight text-background aria-[current=page]:text-accent"
+                    className="group flex min-h-[4.25rem] items-center justify-between gap-4 py-2 text-[32px] font-bold leading-tight text-background aria-[current=page]:text-accent"
                   >
-                    {t(copy.nav[item.key])}
-                    <ArrowRight aria-hidden="true" className="h-6 w-6 shrink-0 text-accent rtl:-scale-x-100" strokeWidth={1.5} />
+                    <span className="flex items-center gap-4">
+                      <span aria-hidden="true" className="hidden h-[3px] w-3.5 shrink-0 rounded-full bg-accent group-aria-[current=page]:block" />
+                      {t(copy.nav[item.key])}
+                    </span>
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="h-6 w-6 shrink-0 text-steel rtl:-scale-x-100 group-aria-[current=page]:text-accent"
+                      strokeWidth={1.5}
+                    />
                   </NavLink>
                 </m.li>
               ))}

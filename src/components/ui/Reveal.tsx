@@ -8,9 +8,9 @@
  * Reduced motion: MotionConfig (App.tsx) drops the movement; wipes and count-ups are skipped.
  */
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { animate, m, useInView, useReducedMotion } from 'framer-motion';
+import { cubicBezier, m, useInView, useReducedMotion } from 'framer-motion';
 import { cx } from '../../data';
-import { useIsomorphicLayoutEffect, useLanguage, useMountedBySwitch } from '../../data/i18n';
+import { useIsomorphicLayoutEffect, useLanguage, useLanguageTransition, useMountedBySwitch } from '../../data/i18n';
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 export const REVEAL_DURATION = 0.7;
@@ -171,11 +171,22 @@ export function ClipReveal({
     return () => observer.disconnect();
   }, []);
 
+  const elapsed = useIntroElapsed();
   const inner = cx('h-full w-full', innerClassName);
-  if (reduce) {
+  if (reduce || (immediate && justSwitched)) {
     return (
       <div ref={ref} className={className} style={style}>
         <div className={inner}>{children}</div>
+      </div>
+    );
+  }
+  if (immediate) {
+    // Above the fold: a CSS wipe that plays from the first paint, also in the pre-rendered HTML.
+    return (
+      <div ref={ref} className={className} style={style}>
+        <div className={inner} {...introProps('wipe', delay * 1000 - elapsed)}>
+          {children}
+        </div>
       </div>
     );
   }
@@ -186,7 +197,8 @@ export function ClipReveal({
       className={className}
       style={style}
       initial="hidden"
-      {...(immediate ? { animate: 'visible' } : { whileInView: 'visible', viewport: REVEAL_VIEWPORT })}
+      whileInView="visible"
+      viewport={REVEAL_VIEWPORT}
       variants={{ hidden: {}, visible: {} }}
     >
       <m.div
@@ -262,10 +274,19 @@ export function CountUp({ value, className, duration = 1.6 }: { value: string; c
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // A small frame-by-frame tween with the site's easing (no animation engine needed for one number).
   useEffect(() => {
     if (!animatable || !inView) return;
-    const controls = animate(0, 1, { duration, ease: EASE_OUT, onUpdate: setProgress });
-    return () => controls.stop();
+    const ease = cubicBezier(...EASE_OUT);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / (duration * 1000));
+      setProgress(ease(t));
+      if (t < 1) frame = window.requestAnimationFrame(tick);
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
   }, [animatable, inView, duration]);
 
   return (
@@ -282,41 +303,67 @@ export function CountUp({ value, className, duration = 1.6 }: { value: string; c
 }
 
 /**
- * Entrance props for the elements of a page opening (PageHero, Home hero text):
- * on arrival they rise in, 80 ms apart; when the page was opened by a language switch,
- * headings slide in from the new reading side 40 ms apart and the rest arrives with <main>.
+ * Clock of the page-opening intro. main.tsx sets `origin` from the pre-rendered page's running CSS
+ * animation (the moment it started), so the app can continue it seamlessly; App clears it after the
+ * first commit, so later pages start their intro fresh.
+ */
+export const introClock: { origin: number | null } = { origin: null };
+
+/** Milliseconds the pre-rendered intro had already run when this component mounted (0 without one). */
+export function useIntroElapsed(): number {
+  const [elapsed] = useState(() =>
+    introClock.origin == null || typeof performance === 'undefined' ? 0 : performance.now() - introClock.origin,
+  );
+  return elapsed;
+}
+
+/**
+ * Props for an element animated by the CSS intro (see "Page-opening intro" in index.css): it is
+ * visible in the static HTML and animates from the first paint, before any script runs. A negative
+ * delay continues an animation that the pre-rendered page had already started.
+ */
+export function introProps(kind: 'rise' | 'fade' | 'window' | 'wipe', delayMs: number) {
+  return {
+    initial: false as const,
+    'data-intro': kind,
+    style: { '--intro-delay': `${Math.round(delayMs)}ms` } as CSSProperties,
+  };
+}
+
+/** After a language switch, headings slide in from the new reading side once the reveal starts. */
+function useSwitchSlide() {
+  const { dir } = useLanguage();
+  const { phase } = useLanguageTransition();
+  const hidden = { opacity: 0, x: dir === 'rtl' ? 32 : -32 };
+  return (order: number) => ({
+    initial: hidden,
+    animate: phase === 'swapping' ? hidden : { opacity: 1, x: 0 },
+    transition: { delay: 0.12 + order * 0.04, duration: 0.42, ease: EASE_OUT },
+  });
+}
+
+/**
+ * Entrance props for the elements of a page opening (PageHero, the Home hero, the product stage):
+ * on arrival they rise in, 80 ms apart, as CSS animations that also run in the pre-rendered HTML;
+ * when the page was opened by a language switch, headings slide in from the new reading side
+ * 40 ms apart and the rest arrives with <main>.
  *
  *   const entrance = useEntrance();
  *   <m.h1 {...entrance(1, 'heading')}>…</m.h1>
  */
 export function useEntrance(baseDelay = 0.1) {
-  const { dir } = useLanguage();
   const mountedBySwitch = useMountedBySwitch();
+  const elapsed = useIntroElapsed();
+  const slide = useSwitchSlide();
   return (order: number, kind: 'heading' | 'text' = 'text') => {
-    if (mountedBySwitch) {
-      if (kind !== 'heading') return { initial: false as const };
-      return {
-        initial: { opacity: 0, x: dir === 'rtl' ? 32 : -32 },
-        animate: { opacity: 1, x: 0 },
-        transition: { delay: 0.22 + order * 0.04, duration: 0.42, ease: EASE_OUT },
-      };
-    }
-    return {
-      initial: { opacity: 0, y: 24 },
-      animate: { opacity: 1, y: 0 },
-      transition: { delay: baseDelay + order * REVEAL_STAGGER, duration: REVEAL_DURATION, ease: EASE_OUT },
-    };
+    if (mountedBySwitch) return kind === 'heading' ? slide(order) : { initial: false as const };
+    return introProps('rise', (baseDelay + order * REVEAL_STAGGER) * 1000 - elapsed);
   };
 }
 
 /** Props for a section heading (<m.h2>) that slides in from the new reading side after a language switch. */
 export function useSwitchHeading(order: number) {
-  const { dir } = useLanguage();
   const mountedBySwitch = useMountedBySwitch();
-  if (!mountedBySwitch) return {};
-  return {
-    initial: { opacity: 0, x: dir === 'rtl' ? 32 : -32 },
-    animate: { opacity: 1, x: 0 },
-    transition: { delay: 0.22 + order * 0.04, duration: 0.42, ease: EASE_OUT },
-  };
+  const slide = useSwitchSlide();
+  return mountedBySwitch ? slide(order) : {};
 }

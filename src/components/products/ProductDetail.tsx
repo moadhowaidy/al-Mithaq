@@ -121,8 +121,7 @@ function ProductStage({ product }: { product: Product }) {
           <div className="relative w-full md:ms-auto md:max-w-[620px] lg:col-span-4 lg:max-w-none xl:col-span-5">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-x-6 -inset-y-10 md:-inset-x-12"
-              style={{ background: 'radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent)' }}
+              className="pointer-events-none absolute -inset-x-6 -inset-y-10 md:-inset-x-12 dusk-glow"
             />
             <ClipReveal immediate delay={0.25} className="relative">
               <img
@@ -151,7 +150,7 @@ function ProductStage({ product }: { product: Product }) {
               >
                 <dt className="mt-3 text-sm leading-snug text-steel">{t(figure.label)}</dt>
                 {/* Units sit under the value until 1280 px, where every value and unit fit on one line. */}
-                <dd className="flex flex-col items-start gap-y-1.5 xl:flex-row xl:items-baseline xl:gap-x-2">
+                <dd className="flex flex-wrap items-baseline gap-x-2 gap-y-1 lg:flex-col lg:items-start lg:gap-y-1.5 xl:flex-row xl:items-baseline xl:gap-y-1">
                   <CountUp value={figure.value} className="figure-value text-background" />
                   <span className="text-base font-semibold leading-tight text-accent">{t(figure.unit)}</span>
                 </dd>
@@ -217,13 +216,13 @@ function SpecTable({ product }: { product: Product }) {
               <th
                 role="rowheader"
                 scope="row"
-                className="block px-5 pb-1 pt-4 text-start text-sm font-medium leading-snug text-muted sm:table-cell sm:w-2/5 sm:px-6 sm:py-4 sm:align-top sm:text-[15px] md:px-8 md:py-5 md:text-base"
+                className="block px-5 pb-1 pt-4 text-start text-sm font-medium leading-snug text-pretty text-muted sm:table-cell sm:w-2/5 sm:px-6 sm:py-4 sm:align-top sm:text-[15px] md:px-8 md:py-5 md:text-base"
               >
                 {t(row.label)}
               </th>
               <td
                 role="cell"
-                className="block px-5 pb-4 text-[15px] leading-snug text-primary sm:table-cell sm:px-6 sm:py-4 sm:align-top md:px-8 md:py-5 md:text-base"
+                className="block px-5 pb-4 text-[15px] leading-snug text-pretty text-primary sm:table-cell sm:px-6 sm:py-4 sm:align-top md:px-8 md:py-5 md:text-base"
               >
                 {setFigures(t(row.value))}
               </td>

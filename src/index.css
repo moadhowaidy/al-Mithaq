@@ -102,9 +102,10 @@
     outline-offset: 2px;
   }
 
-  /* Anchored sections clear the sticky header. */
-  [id] {
-    scroll-margin-top: calc(var(--header-h) + 24px);
+  /* Anchored sections and focused controls clear the sticky header (also when tabbing backwards). */
+  html {
+    scroll-padding-top: calc(var(--header-h) + 24px);
+    scroll-padding-bottom: 24px;
   }
 }
 
@@ -229,7 +230,7 @@
   .deco-number {
     font-family: var(--font-latin);
     font-weight: 300;
-    font-size: clamp(4.5rem, 3.2rem + 4vw, 7.5rem);
+    font-size: clamp(4.5rem, 3.257rem + 5.304vw, 7.5rem); /* 72 → 120 px */
     line-height: 1;
     color: var(--color-line);
   }
@@ -460,7 +461,8 @@
     width: 100%;
     min-height: 52px;
     padding: 0 16px;
-    border: 1px solid var(--color-line);
+    /* Navy at 50 %: a 3:1 boundary on white, so fields stay visible for low-vision visitors. */
+    border: 1px solid color-mix(in srgb, var(--color-primary) 50%, transparent);
     border-radius: var(--radius-field);
     background-color: var(--color-surface);
     color: var(--color-primary);
@@ -475,7 +477,7 @@
     opacity: 1;
   }
   .field:hover {
-    border-color: var(--color-muted);
+    border-color: var(--color-primary);
   }
   .field:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -526,6 +528,10 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 180px 180px;
   }
+  /* Soft dusk glow behind the hero window and on the product stages: radial gold at 12 %. */
+  .dusk-glow {
+    background: radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent);
+  }
   /* The Gateway band: a 40 px strip of the brand tile (image set inline from data). */
   .gateway-band {
     height: 40px;
@@ -549,10 +555,11 @@
   /* The quote band's inline-start corner is cut at the logo's 50° road angle (tan 50° = 1.19175). */
   .quote-band {
     --cut: 56px;
-    clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--cut) * 1.19175));
+    /* The bottom edge runs 1 px past the box, so it never anti-aliases into a light seam above the footer. */
+    clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% + 1px), 0 calc(100% + 1px), 0 calc(var(--cut) * 1.19175));
   }
   [dir="rtl"] .quote-band {
-    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% calc(var(--cut) * 1.19175), 100% 100%, 0 100%);
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% calc(var(--cut) * 1.19175), 100% calc(100% + 1px), 0 calc(100% + 1px));
   }
   @media (min-width: 1024px) {
     .quote-band {
@@ -586,11 +593,92 @@
     background-color: var(--color-accent);
     color: var(--color-primary);
     font-weight: 600;
+    /* A Lane White ring: it shows on the navy header behind the gold pill. */
+    --focus-ring: var(--color-background);
     transform: translateY(-200%);
     transition: transform 0.3s var(--ease-gateway);
   }
   .skip-link:focus-visible {
     transform: translateY(0);
+  }
+}
+
+/* =====================================================================
+   Page-opening intro (CSS, so it plays from the first paint of the pre-rendered HTML)
+   Elements carry data-intro and their delay in --intro-delay (see useEntrance in ui/Reveal.tsx).
+   When the app takes over, it continues each animation where the pre-rendered one had got to.
+   ===================================================================== */
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes intro-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* The Home window opens upward from the road. */
+@keyframes intro-window {
+  from {
+    clip-path: inset(100% 0% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+/* Image wipes from the reading start. */
+@keyframes intro-wipe-ltr {
+  from {
+    clip-path: inset(0% 100% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+@keyframes intro-wipe-rtl {
+  from {
+    clip-path: inset(0% 0% 0% 100%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+[data-intro] {
+  animation-delay: var(--intro-delay, 0ms);
+  animation-fill-mode: both;
+  animation-timing-function: var(--ease-gateway);
+}
+[data-intro="rise"] {
+  animation-name: intro-rise;
+  animation-duration: 700ms;
+}
+[data-intro="fade"] {
+  animation-name: intro-fade;
+  animation-duration: 1400ms;
+}
+[data-intro="window"] {
+  animation-name: intro-window;
+  animation-duration: 900ms;
+}
+[data-intro="wipe"] {
+  animation-name: intro-wipe-ltr;
+  animation-duration: 1100ms;
+}
+[dir="rtl"] [data-intro="wipe"] {
+  animation-name: intro-wipe-rtl;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-intro] {
+    animation: none !important;
   }
 }
 

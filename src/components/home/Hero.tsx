@@ -5,11 +5,10 @@ import { useLanguage, useMountedBySwitch } from '../../data/i18n';
 import Button from '../ui/Button';
 import GatewayBand from '../ui/GatewayBand';
 import { GATE, GATE_VIEWBOX, GateDashes } from '../ui/GatewayMark';
-import { EASE_OUT, useEntrance } from '../ui/Reveal';
+import { introProps, useEntrance, useIntroElapsed } from '../ui/Reveal';
 
 /** The window rises out of the road first (seconds)… */
-const WINDOW_DELAY = 0.1;
-const WINDOW_DURATION = 0.9;
+const WINDOW_DELAY = 0.1; // the window's CSS animation lasts 900 ms (index.css)
 /** …and the text follows once the calm ease has opened most of it. */
 const TEXT_DELAY = 0.55;
 /**
@@ -42,6 +41,7 @@ export default function Hero() {
   const reduce = useReducedMotion();
   const mountedBySwitch = useMountedBySwitch();
   const entrance = useEntrance(reduce ? 0.1 : TEXT_DELAY);
+  const elapsed = useIntroElapsed();
   const section = useRef<HTMLElement>(null);
   const reactId = useId();
   const clipId = `hero-gate-${reactId.replace(/[^\w-]/g, '')}`;
@@ -52,6 +52,9 @@ export default function Hero() {
 
   // Opened by a language switch, or with reduced motion: no window reveal (the <main> wrapper enters).
   const playIntro = !reduce && !mountedBySwitch;
+  // CSS intros (they also play in the pre-rendered HTML); only the attributes go on the plain elements.
+  const glowIntro = playIntro ? introProps('fade', (WINDOW_DELAY + 0.2) * 1000 - elapsed) : null;
+  const windowIntro = playIntro ? introProps('window', WINDOW_DELAY * 1000 - elapsed) : null;
 
   return (
     <section
@@ -59,7 +62,7 @@ export default function Hero() {
       aria-labelledby="home-hero-title"
       className="on-dark grain relative flex min-h-[640px] flex-col overflow-hidden bg-primary lg:min-h-[clamp(640px,calc(100svh_-_5rem),62rem)]"
     >
-      <div className="container-site relative grid flex-1 content-center items-center gap-10 pb-28 pt-8 md:gap-14 md:pt-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 lg:pb-32 lg:pt-16">
+      <div className="container-site relative grid flex-1 grid-cols-1 content-center items-center gap-10 pb-28 pt-8 md:gap-14 md:pt-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-16 lg:pb-32 lg:pt-16">
         <div className="relative">
           <m.p className="kicker text-accent" {...entrance(0)}>
             {t(copy.home.heroKicker)}
@@ -93,25 +96,14 @@ export default function Hero() {
         <div className="order-first lg:order-none">
           <div className="relative mx-auto w-[333px] max-w-full md:w-[400px] lg:me-0 lg:ms-auto lg:w-full lg:max-w-[560px]">
             {/* Dusk glow: radial gold at 12 % behind the window. */}
-            <m.div
+            <div
               aria-hidden="true"
-              className="pointer-events-none absolute -inset-[22%]"
-              style={{ background: 'radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent)' }}
-              {...(playIntro
-                ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { delay: WINDOW_DELAY + 0.2, duration: 1.4, ease: EASE_OUT } }
-                : {})}
+              className="dusk-glow pointer-events-none absolute -inset-[22%]"
+              data-intro={glowIntro?.['data-intro']}
+              style={glowIntro?.style}
             />
             {/* The window reveals upward: the clip opens from the bottom edge to the full height. */}
-            <m.div
-              className="relative aspect-[700/630] w-full"
-              {...(playIntro
-                ? {
-                    initial: { clipPath: 'inset(100% 0% 0% 0%)' },
-                    animate: { clipPath: 'inset(0% 0% 0% 0%)' },
-                    transition: { delay: WINDOW_DELAY, duration: WINDOW_DURATION, ease: EASE_OUT },
-                  }
-                : {})}
-            >
+            <div className="relative aspect-[700/630] w-full" data-intro={windowIntro?.['data-intro']} style={windowIntro?.style}>
               {/* Never mirrored in RTL: the Gateway geometry is the logo's own. */}
               <svg viewBox={GATE_VIEWBOX} className="block h-full w-full" aria-hidden="true" focusable="false">
                 <defs>
@@ -144,7 +136,7 @@ export default function Hero() {
                     The loop rests by itself off screen and turns static with reduced motion. */}
                 <GateDashes mode="loop" />
               </svg>
-            </m.div>
+            </div>
           </div>
         </div>
       </div>

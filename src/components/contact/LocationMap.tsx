@@ -72,8 +72,7 @@ function MapVisual() {
       className="relative h-60 overflow-hidden [mask-image:radial-gradient(closest-side,#000_55%,transparent)] sm:h-72 lg:h-auto"
     >
       <div
-        className="absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{ background: 'radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent)' }}
+        className="absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full dusk-glow"
       />
       <div className="absolute inset-x-0 top-1/2 h-px bg-steel/15" />
       <div className="absolute inset-y-0 left-1/2 w-px bg-steel/15" />
@@ -86,7 +85,7 @@ function MapVisual() {
       ))}
       <GatewayMark
         tone="light"
-        dashes="loop"
+        dashes="lit"
         className="absolute left-1/2 top-1/2 w-20 -translate-x-1/2 -translate-y-1/2 sm:w-24 lg:w-28"
       />
     </div>

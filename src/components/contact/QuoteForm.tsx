@@ -162,7 +162,9 @@ export default function QuoteForm() {
   const bind = (name: FieldName) => ({
     id: fieldId(name),
     value: values[name],
-    'aria-invalid': errors[name] ? true : undefined,
+    // An explicit false overrides the browser's own state, so a required field is never announced
+    // as invalid before the visitor has tried to send.
+    'aria-invalid': errors[name] ? true : false,
     'aria-describedby': errors[name] ? errorId(name) : undefined,
     ref: (node: Control | null) => {
       controls.current[name] = node;
@@ -361,7 +363,7 @@ export default function QuoteForm() {
           </div>
 
           <div className="mt-10 flex flex-col gap-3 border-t border-line pt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-4">
-            <Button type="submit" icon={MessageCircle} className="w-full sm:w-auto">
+            <Button type="submit" icon={MessageCircle} className="w-full whitespace-normal sm:w-auto sm:whitespace-nowrap">
               {t(copy.form.submit)}
             </Button>
             <button

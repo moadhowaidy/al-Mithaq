@@ -62,7 +62,7 @@ export default function Pledge() {
               )}
             >
               <h3 className="h3 text-primary">{t(pillar.title)}</h3>
-              <p className="mx-auto mt-3 max-w-[30ch] text-balance text-muted">{t(pillar.text)}</p>
+              <p className="mx-auto mt-3 max-w-[32ch] text-pretty text-muted">{t(pillar.text)}</p>
             </RevealItem>
           ))}
         </RevealGroup>

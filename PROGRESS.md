@@ -55,7 +55,16 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 - **Gold buttons stay scarce**: sectors without products, the product-card actions on tablets and the map buttons use outline buttons; gold is kept for the main quote actions and the WhatsApp button.
 - **Partners**: each empty group shows three quiet placeholder tiles (no invented brands); the Home teaser shows four. They fill in automatically from `partners` in `src/data/index.ts`.
 - **Wipe reveals** watch an unclipped wrapper and load lazy images before they open (browsers skip clipped lazy images, and a clipped element can miss the in-view signal at the top of the screen).
-- **Anchors**: following a `#hash` (e.g. "Request a quote" → `#quote`) also moves keyboard focus there.
+- **Anchors and page changes**: following a `#hash` (e.g. "Request a quote" → `#quote`) moves keyboard focus there; any other in-app page change moves focus to the new page's title, so keyboard and screen-reader users start at the top of the new page. `scroll-padding` keeps focused controls and anchors clear of the sticky header.
+- **Language switch sequencing**: only the 320 ms swap is on a clock. The reveal starts once the new page has committed and painted (after the 100 ms dash hold), and the switch ends when the panel has left the screen. On a slow phone the reveal comes later but always plays in full; it never pops. The swap render runs as a React transition, and the panel animates a transform string the browser can run off the main thread.
+- **Page openings animate in CSS**: the opening of every page (kicker, title, lead, buttons, the Home window, the product image) uses CSS keyframes from its first paint, so the pre-rendered HTML is visible before the script arrives. When the app takes over it continues the running animation instead of replaying it. Below-the-fold reveals stay script-driven.
+- **Arabic pages use Barlow for Latin text and digits**: Noto Kufi Arabic is loaded as its Arabic subset only, so "G2200", phone numbers and the email match the logo's Latin face everywhere.
+- **Form fields** have a navy 50 % border (3:1 against white), so they stay visible for low-vision visitors; decorative hairlines keep the lighter `line` colour.
+- **Only the Home hero loops**: its runway-light dashes loop as briefed (paused off screen and with reduced motion). The 404 and the Contact map card light their dashes once instead.
+- **Product page opening** is asphalt with the work-zone chevrons along its bottom edge instead of the navy Gateway band, since the brief makes it a product stage and keeps the chevrons for product panels. Easy to swap if MOAD prefers the band.
+- **Home sector cards** are 2 columns on tablets (768–1023 px) as well as phones, and 4 × 2 from 1024 px: at four across on a tablet, Arabic names broke one word per line.
+- **Sector product chips** link to each product's own page; the "Products in this sector" heading above them links to the filtered catalogue (`/products?sector=`), as the brief describes.
+- **App shell and manifest**: `dist/index.html` (used for "/" and unknown addresses) and `dist/site.webmanifest` take their titles and names from `src/data` at build time; `public/site.webmanifest` is only the development copy.
 
 ## TODO for the client ([CONFIRM] items)
 

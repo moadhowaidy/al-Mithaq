@@ -14,23 +14,33 @@ const LANE_DASH_STRIP = 'repeating-linear-gradient(to bottom, #EAA620 0 40px, tr
  *
  * Physical left/right are used on purpose: the document direction flips mid-animation.
  * Not rendered with reduced motion (the main content crossfades instead).
+ *
+ * The reveal starts only once the new page has committed, and the overlay stays until the panel
+ * has left the screen (onAnimationComplete ends the switch). The panel animates a transform
+ * string, which the browser can run off the main thread while the new page settles.
  */
 export default function LanguageTransition() {
-  const { phase, target, reducedSwitch } = useLanguageTransition();
+  const { phase, target, reducedSwitch, finishSwitch } = useLanguageTransition();
   if (phase === 'idle' || !target || reducedSwitch) return null;
 
   const toEnglish = target === 'en';
   const revealing = phase === 'revealing';
   const covered = phase === 'swapping' || revealing;
+  const skew = `skewX(${toEnglish ? -40 : 40}deg)`;
+  const enter = toEnglish ? '-100%' : '100%';
+  const exit = toEnglish ? '100%' : '-100%';
 
   return (
     <div aria-hidden="true" className="fixed inset-0 z-[100] overflow-hidden">
       <m.div
         className="absolute inset-y-0 bg-primary will-change-transform"
-        style={{ left: '-50vh', width: 'calc(100vw + 100vh)', skewX: toEnglish ? -40 : 40 }}
-        initial={{ x: toEnglish ? '-100%' : '100%' }}
-        animate={{ x: revealing ? (toEnglish ? '100%' : '-100%') : '0%' }}
+        style={{ left: '-50vh', width: 'calc(100vw + 100vh)' }}
+        initial={{ transform: `translateX(${enter}) ${skew}` }}
+        animate={{ transform: `translateX(${revealing ? exit : '0%'}) ${skew}` }}
         transition={{ duration: 0.3, ease: SWEEP_EASE }}
+        onAnimationComplete={() => {
+          if (revealing) finishSwitch();
+        }}
       >
         {/* Both edges: an 8 px gold strip and, 24 px inside it, a 6 px strip of lane dashes. */}
         <span className="absolute inset-y-0 left-0 w-2 bg-accent" />

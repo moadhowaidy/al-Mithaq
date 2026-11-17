@@ -7,13 +7,19 @@ import { cx } from '../../data';
 
 /**
  * A figure with its range and unit: "1.5–2.3 m", "300 L", "1.5 إلى 2.3 م", "3200 × 2200 × 2750 mm".
- * Connectors are an en dash or a short word between digits; a unit is a short word right after.
+ * Connectors are an en dash, a hyphen or a short word between digits; a unit is a short word right after.
  */
-const FIGURE = /(\d[\d.,]*(?:(?:–| [^\s\d]{1,3} )\d[\d.,]*)*(?: [^\s\d]{1,3}(?=[\s.,،)]|$))?)/u;
-/** An en-dash range between two numbers; separators count only between digits, so a following full stop stays outside. */
-const RANGE = /(\d+(?:[.,]\d+)*–\d+(?:[.,]\d+)*)/;
+const FIGURE = /(\d[\d.,]*(?:(?:[–-]| [^\s\d]{1,3} )\d[\d.,]*)*(?: [^\s\d]{1,3}(?=[\s.,،)]|$))?)/u;
+/**
+ * Two numbers joined by an en dash or a hyphen ("1.5–2.3", the tyre size "400-08"); separators count
+ * only between digits, so a following full stop stays outside.
+ */
+const RANGE = /(\d+(?:[.,]\d+)*[–-]\d+(?:[.,]\d+)*)/;
 
-/** In Arabic text "1.5–2.3" would be laid out as "2.3–1.5"; isolating the range keeps it reading like the key figures. */
+/**
+ * In Arabic text "1.5–2.3" would be laid out as "2.3–1.5", and the tyre code "400-08" as "08-400";
+ * isolating them keeps them reading left to right, like the key figures.
+ */
 function isolateRanges(text: string): ReactNode {
   const parts = text.split(RANGE);
   if (parts.length === 1) return text;
@@ -33,7 +39,9 @@ function isolateRanges(text: string): ReactNode {
  * breaks in the middle, a unit never starts a line), and en-dash ranges read left to right inside
  * Arabic. The sentence around them keeps its natural direction. [CONFIRM with MOAD: left-to-right ranges.]
  */
-export function setFigures(text: string): ReactNode {
+export function setFigures(source: string): ReactNode {
+  // Multiplication groups ("600 mm × 2", "× 3") never break: no-break spaces around the ×.
+  const text = source.replace(/ × /g, ' × ');
   const parts = text.split(FIGURE);
   if (parts.length === 1) return text;
   return parts.map((part, index) =>

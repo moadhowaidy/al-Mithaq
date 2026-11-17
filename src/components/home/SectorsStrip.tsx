@@ -4,6 +4,7 @@ import { SECTOR_ICON_SIZE, copy, cx, langPath, sectorNumber, sectors } from '../
 import { useLanguage } from '../../data/i18n';
 import SectionOpener from '../ui/SectionOpener';
 import { RevealGroup, RevealItem } from '../ui/Reveal';
+import { bindAmpersand } from '../ui/Typeset';
 
 /**
  * 01 · Our eight sectors: a 4 × 2 grid of white cards (2 × 4 on phones and tablets, where four
@@ -60,7 +61,7 @@ export default function SectorsStrip() {
                         : 'text-base font-semibold leading-snug lg:text-lg',
                     )}
                   >
-                    {t(sector.name)}
+                    {bindAmpersand(t(sector.name))}
                   </h3>
                 </div>
               </Link>

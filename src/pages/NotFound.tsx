@@ -19,12 +19,12 @@ export default function NotFound() {
       <section className="on-dark grain relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden bg-primary">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{ background: 'radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent)' }}
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full dusk-glow"
         />
         <div className="container-site relative flex flex-col items-center py-24 text-center">
           <m.div {...entrance(0)}>
-            <GatewayMark tone="light" dashes="loop" className="w-28 md:w-36" />
+            {/* The dashes light up once (no endless loop here: only the Home hero loops, as briefed). */}
+            <GatewayMark tone="light" dashes="lit" className="w-28 md:w-36" />
           </m.div>
           <m.p className="kicker mt-10 text-accent" {...entrance(1)}>
             {t(copy.notFound.kicker)}

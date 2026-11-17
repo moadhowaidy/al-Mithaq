@@ -12,6 +12,7 @@
  */
 import {
   createContext,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -40,10 +41,15 @@ export type TransitionPhase = 'idle' | 'covering' | 'swapping' | 'revealing';
 /** How the <main> wrapper enters after the latest swap. */
 export type EntranceMode = 'none' | 'sweep' | 'fade';
 
-/** Timeline of the switch in milliseconds (docs/BUILD_PROMPT.md, <language_transition>). */
-export const SWITCH_MS = { swap: 320, reveal: 420, end: 720 } as const;
-/** Reduced motion: a 200 ms crossfade with the swap at its midpoint. */
-export const REDUCED_SWITCH_MS = { swap: 100, end: 200 } as const;
+/**
+ * Timeline of the switch in milliseconds (docs/BUILD_PROMPT.md, <language_transition>): the cover
+ * runs 0–300, the swap happens at 320, the dashes light up during a 100 ms hold, then the 300 ms
+ * reveal plays from full cover. The reveal starts once the new page has committed and the switch
+ * ends when the panel has left the screen, so a slow device delays the reveal instead of cutting it.
+ */
+export const SWITCH_MS = { swap: 320, hold: 100, reveal: 300, safety: 10000 } as const;
+/** Reduced motion: a crossfade (100 ms out, swap, 100 ms in), no panel. */
+export const REDUCED_SWITCH_MS = { swap: 100, fade: 100 } as const;
 /** In-view reveals show at once for this long after the switch ends (the main wrapper did the entrance). */
 const SETTLE_MS = 400;
 
@@ -106,6 +112,8 @@ export interface LanguageTransitionValue {
   entrance: EntranceMode;
   /** Text of the polite live region ("English version" / "النسخة العربية"). */
   announcement: string;
+  /** Ends the switch (the overlay calls it when the panel has left the screen). */
+  finishSwitch: () => void;
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -151,11 +159,32 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [announcement, setAnnouncement] = useState('');
   const timers = useRef<number[]>([]);
   const locationRef = useRef(location);
+  /** The switch in progress: where it goes and when the swap started. */
+  const run = useRef<{ to: Lang; reduce: boolean; focusTarget: HTMLElement | null; swapStarted: number } | null>(null);
 
   const setPhase = useCallback((next: TransitionPhase) => {
     phaseRef.current = next;
     setPhaseState(next);
   }, []);
+
+  const later = useCallback((delay: number, task: () => void) => {
+    timers.current.push(window.setTimeout(task, Math.max(0, delay)));
+  }, []);
+
+  const clearTimers = useCallback(() => {
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current.length = 0;
+  }, []);
+
+  /** Ends the switch: called when the panel has left the screen (or by the safety timer). */
+  const finishSwitch = useCallback(() => {
+    if (phaseRef.current === 'idle') return;
+    clearTimers();
+    run.current = null;
+    setPhase('idle');
+    setTarget(null);
+    later(SETTLE_MS, () => setJustSwitched(false));
+  }, [clearTimers, later, setPhase]);
 
   useIsomorphicLayoutEffect(() => {
     locationRef.current = location;
@@ -190,10 +219,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (root.dir !== dir) root.dir = dir;
   }, [lang, dir]);
 
-  useEffect(() => {
-    const pending = timers.current;
-    return () => pending.forEach((id) => window.clearTimeout(id));
-  }, []);
+  useEffect(() => clearTimers, [clearTimers]);
+
+  // The page has committed in the new language: return focus to the toggle, then start the reveal
+  // once that frame is painted and the mark's dashes have had their 100 ms hold. Driving this from
+  // the commit (not from the clock) means a slow render makes the reveal later, never shorter.
+  useIsomorphicLayoutEffect(() => {
+    const current = run.current;
+    if (!current || phaseRef.current !== 'swapping' || lang !== current.to) return;
+    const frame = window.requestAnimationFrame(() => {
+      const { focusTarget } = current;
+      if (focusTarget?.isConnected && document.activeElement !== focusTarget) focusTarget.focus({ preventScroll: true });
+      const held = performance.now() - current.swapStarted;
+      later(current.reduce ? 0 : SWITCH_MS.hold - held, () => {
+        setPhase('revealing');
+        // The panel's onAnimationComplete normally ends the switch; this is the backstop.
+        later(current.reduce ? REDUCED_SWITCH_MS.fade : SWITCH_MS.reveal + 700, finishSwitch);
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   // Once the page is idle, fetch the other language's fonts and header logo,
   // so the switch never shows a font swap or an empty logo.
@@ -224,22 +270,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const nextPath = swapLangInPath(pathname, to) + search + hash;
       const focusTarget = trigger ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const swapAt = reduce ? REDUCED_SWITCH_MS.swap : SWITCH_MS.swap;
-      const endAt = reduce ? REDUCED_SWITCH_MS.end : SWITCH_MS.end;
-      const started = performance.now();
-      // Timers are measured from the click, so a slow render never stretches the timeline.
-      const at = (time: number, run: () => void) => {
-        timers.current.push(window.setTimeout(run, Math.max(0, time - (performance.now() - started))));
-      };
 
-      timers.current.forEach((id) => window.clearTimeout(id));
-      timers.current = [];
-      phaseRef.current = 'covering';
+      clearTimers();
+      run.current = { to, reduce, focusTarget, swapStarted: 0 };
       setTarget(to);
       setReducedSwitch(reduce);
       setPhase('covering');
 
-      at(swapAt, () => {
+      // At 320 ms (100 ms reduced) the screen is covered: save the choice and light the mark's
+      // dashes in a small render of their own, then swap the page once that frame is painted.
+      later(reduce ? REDUCED_SWITCH_MS.swap : SWITCH_MS.swap, () => {
         try {
           window.localStorage.setItem(LANG_STORAGE_KEY, to);
         } catch {
@@ -249,22 +289,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         setEntrance(reduce ? 'fade' : 'sweep');
         setJustSwitched(true);
         setAnnouncement(copy.toggle.announce[to]);
-        setPhase(reduce ? 'revealing' : 'swapping');
-        navigate(nextPath, { replace: true, preventScrollReset: true });
+        setPhase('swapping');
+        if (run.current) run.current.swapStarted = performance.now();
         window.requestAnimationFrame(() => {
-          if (focusTarget?.isConnected && document.activeElement !== focusTarget) {
-            focusTarget.focus({ preventScroll: true });
-          }
+          // A transition lets React yield while it renders the new page under the cover.
+          startTransition(() => navigate(nextPath, { replace: true, preventScrollReset: true }));
         });
       });
-      if (!reduce) at(SWITCH_MS.reveal, () => setPhase('revealing'));
-      at(endAt, () => {
-        setPhase('idle');
-        setTarget(null);
-      });
-      at(endAt + SETTLE_MS, () => setJustSwitched(false));
+      // Safety net: the overlay never stays up (e.g. in a background tab that never paints).
+      later(SWITCH_MS.safety, finishSwitch);
     },
-    [navigate, setPhase],
+    [clearTimers, finishSwitch, later, navigate, setPhase],
   );
 
   const t = useCallback(<T,>(value: Localized<T>): T => value[lang], [lang]);
@@ -274,8 +309,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [lang, dir, t, justSwitched, pendingRedirect, switchLanguage],
   );
   const transitionValue = useMemo<LanguageTransitionValue>(
-    () => ({ phase, target, reducedSwitch, entrance, announcement }),
-    [phase, target, reducedSwitch, entrance, announcement],
+    () => ({ phase, target, reducedSwitch, entrance, announcement, finishSwitch }),
+    [phase, target, reducedSwitch, entrance, announcement, finishSwitch],
   );
 
   return (

@@ -6,7 +6,7 @@ import { LanguageProvider, langFromPath, preferredLang, useIsomorphicLayoutEffec
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import LanguageTransition from './components/layout/LanguageTransition';
-import { EASE_OUT } from './components/ui/Reveal';
+import { EASE_OUT, introClock } from './components/ui/Reveal';
 import Home from './pages/Home';
 import Sectors from './pages/Sectors';
 import Products from './pages/Products';
@@ -22,6 +22,13 @@ import NotFound from './pages/NotFound';
  * MotionConfig drops movement for visitors who ask for reduced motion.
  */
 export default function App() {
+  // The app has rendered: switch off the CSS fallback that reveals pre-rendered content, and let
+  // later pages start their intro fresh.
+  useIsomorphicLayoutEffect(() => {
+    document.documentElement.classList.add('js-ready');
+    introClock.origin = null;
+  }, []);
+
   return (
     <LazyMotion features={domAnimation} strict>
       <MotionConfig reducedMotion="user">
@@ -81,8 +88,9 @@ function SiteLayout() {
 
 /**
  * The <main> wrapper is keyed by language, so after a swap its entrance replays in the new
- * language: it fades in and slides 24 px from the inline-start side (220 ms after the swap,
- * 320 ms long). With reduced motion it crossfades instead (200 ms, swap at the midpoint).
+ * language: it waits, hidden, until the reveal starts, then fades in and slides 24 px from the
+ * inline-start side (120 ms into the reveal, 320 ms long: 540–860 ms on the brief's timeline).
+ * With reduced motion it crossfades instead (100 ms out, swap, 100 ms in).
  * While the new page is still transparent, a backdrop in the colour of the page opening keeps
  * the revealed screen from flashing light between two navy states.
  */
@@ -102,12 +110,13 @@ function MainArea() {
   }, [phase, reducedSwitch]);
 
   const fadingOut = reducedSwitch && phase === 'covering';
-  const initial =
-    entrance === 'sweep' ? { opacity: 0, x: lang === 'ar' ? 24 : -24 } : entrance === 'fade' ? { opacity: 0 } : false;
+  const hidden = entrance === 'sweep' ? { opacity: 0, x: lang === 'ar' ? 24 : -24 } : { opacity: 0, x: 0 };
+  // The new page stays hidden from the swap until the reveal starts.
+  const waiting = entrance !== 'none' && phase === 'swapping';
   const transition = fadingOut
     ? { duration: 0.1, ease: 'linear' as const }
     : entrance === 'sweep'
-      ? { delay: 0.22, duration: 0.32, ease: EASE_OUT }
+      ? { delay: 0.12, duration: 0.32, ease: EASE_OUT }
       : { duration: 0.1, ease: 'linear' as const };
 
   return (
@@ -124,10 +133,13 @@ function MainArea() {
         id="main"
         tabIndex={-1}
         className="relative outline-none"
-        initial={initial}
-        animate={{ opacity: fadingOut ? 0 : 1, x: 0 }}
+        initial={entrance === 'none' ? false : hidden}
+        animate={fadingOut ? { opacity: 0, x: 0 } : waiting ? hidden : { opacity: 1, x: 0 }}
         transition={transition}
-        onAnimationComplete={() => setBackdrop(null)}
+        onAnimationComplete={(done) => {
+          // Drop the backdrop only once the new page is fully in.
+          if (typeof done === 'object' && done !== null && (done as { opacity?: number }).opacity === 1) setBackdrop(null);
+        }}
       >
         <Outlet />
       </m.main>
@@ -167,7 +179,17 @@ function ScrollManager() {
       scrollToHash(location.hash, Boolean(before && before.page === page));
       return;
     }
-    if (before && before.page !== page) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    if (before && before.page !== page) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      // Focus moves to the new page's title, so keyboard and screen-reader users start from the
+      // top of the new page instead of staying on the link they pressed (in the footer, say).
+      window.requestAnimationFrame(() => {
+        const target = document.querySelector<HTMLElement>('main h1') ?? document.getElementById('main');
+        if (!target) return;
+        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.key]);
 

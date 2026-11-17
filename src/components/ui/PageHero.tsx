@@ -37,7 +37,7 @@ export default function PageHero({ kicker, title, lead, children, before, classN
           {title}
         </m.h1>
         {lead ? (
-          <m.p className="lead mt-6 max-w-text text-steel" {...entrance(2)}>
+          <m.p className="lead mt-6 max-w-text text-pretty text-steel" {...entrance(2)}>
             {lead}
           </m.p>
         ) : null}

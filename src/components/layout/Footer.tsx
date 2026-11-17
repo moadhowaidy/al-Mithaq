@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { Link } from 'react-router';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { brand, company, contact, copy, langPath, navItems, sectors, telLink } from '../../data';
@@ -46,7 +47,8 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <div>
+        {/* At 768 px the sectors list spans two rows, so Contact sits under Pages beside it. */}
+        <div className="md:row-span-2 lg:row-span-1">
           <h2 className="kicker text-steel">{t(copy.footer.sectors)}</h2>
           <ul className="mt-6 space-y-1">
             {sectors.map((sector) => (
@@ -92,9 +94,20 @@ export default function Footer() {
 
       <div className="border-t border-steel/30">
         <div className="container-site flex flex-col gap-2 py-6 text-sm text-steel md:flex-row md:items-center md:justify-between">
-          <p>{t(copy.footer.rights)}</p>
-          <p dir="ltr" className="font-num tracking-wide">
-            {company.domain}
+          {/* Each sentence wraps as one unit, so "جميع الحقوق محفوظة." never splits. */}
+          <p>
+            {t(copy.footer.rights)
+              .split(/(?<=\.)\s+/)
+              .map((sentence, index) => (
+                <Fragment key={index}>
+                  {index > 0 ? ' ' : null}
+                  <span className="inline-block">{sentence}</span>
+                </Fragment>
+              ))}
+          </p>
+          {/* Only the address is isolated left to right; the line keeps the page's alignment. */}
+          <p className="font-num tracking-wide">
+            <span dir="ltr">{company.domain}</span>
           </p>
         </div>
       </div>

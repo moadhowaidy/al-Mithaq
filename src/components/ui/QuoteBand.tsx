@@ -32,7 +32,7 @@ export default function QuoteBand({ product, sector }: QuoteBandProps) {
                 {t(copy.quoteBand.title)}
               </m.h2>
             </RevealItem>
-            <RevealItem as="p" className="lead mt-5 max-w-text text-steel">
+            <RevealItem as="p" className="lead mt-5 max-w-text text-balance text-steel">
               {t(copy.quoteBand.body)}
             </RevealItem>
           </RevealGroup>

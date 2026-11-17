@@ -55,7 +55,8 @@ export default function LanguageToggle({ className }: { className?: string }) {
             lang={code}
             className={cx(
               'relative z-10 grid h-9 w-11 place-items-center leading-none transition-colors duration-300',
-              code === 'ar' ? 'font-arabic text-[17px] font-bold' : 'font-label text-[13px] font-semibold tracking-[0.12em]',
+              // pb-1.5 lifts the Arabic glyph to the optical centre and clear of the hint dash.
+              code === 'ar' ? 'font-arabic pb-1.5 text-[17px] font-bold' : 'font-label text-[13px] font-semibold tracking-[0.12em]',
               active ? 'text-primary' : 'text-background',
             )}
           >
