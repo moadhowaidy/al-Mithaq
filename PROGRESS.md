@@ -12,24 +12,24 @@ The full brief is saved in [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md); code 
 | 1 | Project setup, tokens, fonts, routing with the language prefix | Done |
 | 2 | Layout: navy header, mobile menu, page hero, footer, quote band | Done |
 | 3 | The language toggle and the "Through the Gateway" transition | Done |
-| 4 | Home | Planned |
-| 5 | Sectors, Products and the product page | Planned |
-| 6 | About, Partners and Contact (map card, WhatsApp Business button) | Planned |
-| 7 | SEO, 404, `vercel.json`, pre-rendering, final checks | 404, `vercel.json`, pre-rendering and sitemap done; final checks planned |
+| 4 | Home | Done |
+| 5 | Sectors, Products and the product page | Done |
+| 6 | About, Partners and Contact (map card, WhatsApp Business button) | Done |
+| 7 | SEO, 404, `vercel.json`, pre-rendering, final checks | 404, `vercel.json`, pre-rendering and sitemap done; final review in progress |
 
-Milestones 1–3 were built and checked together and share one commit.
-
-**Where the work stopped (16 Nov 2026):** the session's usage limit was reached right after the page build started, so milestones 4–6 have not begun. The page files in `src/pages/` (except `NotFound.tsx`) are still placeholders, and `src/components/home|sectors|products|about|partners|contact/` do not exist yet. Next steps: build those pages to the brief and `docs/CONVENTIONS.md`, then run the final checks (milestone 7) and write the final report.
+Milestones 1–3 were built and checked together and share one commit. Milestones 4–6 were built in parallel (one builder and one independent reviewer per page group), then integrated: shared helpers moved into `src/components/ui/` (`Typeset.tsx`, `ChevronStrip` in `GatewayBand.tsx`, the reworked `ClipReveal`).
 
 ## Stack
 
 React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `src/index.css`) · React Router 8 (declarative `BrowserRouter`) · framer-motion 14 (light `LazyMotion` mode) · lucide-react · `@fontsource` (Noto Kufi Arabic, Barlow, Barlow Semi Condensed).
 
-## Checks so far (milestones 1–3)
+## Checks (after milestones 4–6, production build)
 
-- `npm run build` passes (type-check, client build, 14 pre-rendered pages, `sitemap.xml`).
-- Placeholder pages at 375 / 768 / 1280 px in both languages: no horizontal scroll, correct `lang`/`dir`, no console errors, no failed requests, no letter-spaced Arabic.
-- Language switch (production build): overlay at ~50 ms, swap at ~350 ms, overlay gone at ~740 ms, content in by ~870 ms; path, query, hash and scroll position kept; header logo swaps; a second click is ignored; focus returns to the toggle; the live region announces; the choice is saved. Back/Forward keep the chosen language, also across a page reload.
+- `npm run build` passes: type-check, client build, 14 pre-rendered pages, `sitemap.xml`. Script 132 KB and CSS 12 KB (brotli).
+- SEO check of every pre-rendered page: one title and description, canonical, `hreflang` ar/en/x-default (Arabic), Open Graph image of the page's language, sitemap lists all 14 addresses.
+- All 18 routes (the 14 pages, two filtered views, a pre-filled Contact address and a 404) at 375 / 768 / 1280 px: no horizontal scroll, correct `lang`/`dir`, no console errors, no failed requests, no letter-spaced Arabic, every image sized and loaded, exactly one h1.
+- Brief rules on all pages at 375 and 1280: no gold or steel text on light grounds, phone numbers left to right, tap targets at least 44 px, `wa.me` only on the Contact page (one link).
+- Language switch on 9 pages, both directions, scrolled and from the top: path, query, hash and scroll position kept; header logo swaps; a second click is ignored; focus returns to the toggle; the live region announces; the choice is saved. Overlay at ~45 ms, swap at 350–465 ms (the new page renders under the cover), overlay gone at ~740 ms. Reduced motion: a crossfade, no sweep. Back/Forward keep the chosen language, also across a page reload.
 - Mobile menu: opens from the inline end, traps focus, Escape closes it and returns focus to the menu button, page scroll is locked while open.
 
 ## Decisions (for review)
@@ -44,11 +44,18 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 - **Addresses without a language**: `/products` becomes `/<preferred>/products`; an unknown two-letter prefix (`/fr/products`) is replaced. Without JavaScript, `/` forwards to `/ar`.
 - **Quote band**: the 50° cut is a chamfer on the inline-start top corner (the angle is exact: tan 50°). A full-height 50° edge would take most of a phone's width.
 - **404**: navy page with the Gateway mark, `noindex`, no quote band.
-- **Hosting**: `vercel.json` rewrites every address that is not a file to `/index.html` (as the brief asks) and uses `cleanUrls`. Unknown addresses therefore show the site's 404 page with HTTP status 200; if real 404 status codes are wanted later, the rewrite can be limited and a `404.html` added.
+- **Hosting**: `vercel.json` rewrites every address that is not a file to the app shell (`dist/index.html`, written as `/` because Vercel's `cleanUrls` expects destinations without `.html`), so deep links work on refresh. Pre-rendered pages are files and are served first. Unknown addresses show the site's 404 page with HTTP status 200; if real 404 status codes are wanted later, the rewrite can be limited and a `404.html` added. To verify on the first preview deployment.
 - **Fonts**: heading weights of both languages are preloaded (build plugin in `vite.config.ts`); the remaining weights and the other language's header logo are fetched when the browser is idle, so the switch never shows a font swap.
 - **Form errors**: the palette has no red, so invalid fields get a heavier navy border plus a text message and an error summary.
 - **Phone check**: 7–15 digits after removing spaces, dashes and a leading "+" (dots and brackets are tolerated too); Arabic-Indic digits typed on Arabic keyboards are converted to 0–9.
-- **Copy added during the build** (not in the brief) is marked `// Added during the build` in `src/data/translations.ts`: accessibility labels, the toggle labels, page-opening kickers (e.g. "ما نورّده" / "What we supply"), About section titles, form placeholders and messages, the 404 kicker and SEO text. MOAD to review the Arabic.
+- **Copy added during the build** (not in the brief) is marked `// Added during the build` in `src/data/translations.ts`: accessibility labels, the toggle labels, page-opening kickers (e.g. "ما نورّده" / "What we supply"), About section titles and Company-facts labels, partner-tile labels, the G2200 image alt text, form placeholders, intro and messages, the 404 kicker and SEO text. MOAD to review the Arabic.
+- **Number ranges in Arabic text** ("1.5–2.3", "4–6") are shown left to right, like the key figures and phone numbers; without this the Unicode bidi rules would display them as "2.3–1.5". Figures also never break across lines with their units.
+- **Quote message**: an invisible left-to-right mark sits before the phone number in Arabic messages, so WhatsApp and email never show its digit groups reversed. Entries in the form survive a language switch; a fresh visit starts empty. The form has no `name` attributes, so details can never end up in an address bar or server log.
+- **Contact form fields**: product is the only optional field (its label says so); all others are required, as the copy implies.
+- **Gold buttons stay scarce**: sectors without products, the product-card actions on tablets and the map buttons use outline buttons; gold is kept for the main quote actions and the WhatsApp button.
+- **Partners**: each empty group shows three quiet placeholder tiles (no invented brands); the Home teaser shows four. They fill in automatically from `partners` in `src/data/index.ts`.
+- **Wipe reveals** watch an unclipped wrapper and load lazy images before they open (browsers skip clipped lazy images, and a clipped element can miss the in-view signal at the top of the screen).
+- **Anchors**: following a `#hash` (e.g. "Request a quote" → `#quote`) also moves keyboard focus there.
 
 ## TODO for the client ([CONFIRM] items)
 
@@ -57,7 +64,7 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 3. Working hours. The Contact page shows "To be added" / "سيُضاف قريباً"; the footer leaves hours out.
 4. Social media links (no icons are shown until real links exist).
 5. Founding year and registration details (the About "Company facts" block stays hidden until then).
-6. Partner names, logos, countries and sectors (the Partners page shows neutral "Partner logo" tiles until then).
+6. Partners [CONFIRM]: names, logos, countries and sectors. No partner is confirmed, so all three groups on the Partners page show three placeholder tiles each, and the Home partners row shows four.
 7. Further products from the catalogue, and the G2200 brochure PDF (the "Download the spec sheet" button appears once `brochure` is set).
 8. Real photos (products, head office, fleet, team). The supplier's catalogue (page 25) has front, side and rear photos of the G2200.
 9. Sector summaries and values wording.
@@ -65,3 +72,4 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 11. Analytics: out of scope unless requested.
 12. Official English spelling: the logo package README notes that older logos show "METHAQ"; the new identity and the brief use "Mithaq".
 13. Review the Arabic copy added during the build (see Decisions).
+14. Confirm that number ranges should read left to right inside Arabic text (see Decisions).
