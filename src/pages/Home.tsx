@@ -1,21 +1,25 @@
-// Placeholder: replaced by the Home build (milestone 4).
 import { copy } from '../data';
-import { useLanguage } from '../data/i18n';
+import FeaturedProduct from '../components/home/FeaturedProduct';
+import Hero from '../components/home/Hero';
+import PartnersTeaser from '../components/home/PartnersTeaser';
+import Pledge from '../components/home/Pledge';
+import SectorsStrip from '../components/home/SectorsStrip';
 import QuoteBand from '../components/ui/QuoteBand';
 import Seo from '../components/ui/Seo';
 
+/**
+ * Home (/ar, /en): the navy hero with the Gateway window, then the four numbered sections
+ * (01 sectors · 02 featured product · 03 the pledge · 04 partners) and the quote band.
+ */
 export default function Home() {
-  const { t } = useLanguage();
   return (
     <>
       <Seo title={copy.seo.home.title} description={copy.seo.home.description} />
-      <section className="on-dark grain bg-primary">
-        <div className="container-site py-40">
-          <p className="kicker text-accent">{t(copy.home.heroKicker)}</p>
-          <h1 className="h1 mt-6 text-background">{t(copy.home.heroTitle)}</h1>
-        </div>
-      </section>
-      <div className="h-[80vh]" />
+      <Hero />
+      <SectorsStrip />
+      <FeaturedProduct />
+      <Pledge />
+      <PartnersTeaser />
       <QuoteBand />
     </>
   );
