@@ -6,6 +6,7 @@
  * Items marked [CONFIRM] are not confirmed yet; see the TODO list in PROGRESS.md.
  */
 import { copy } from './translations';
+import { ogImages, type OgImage } from './og-images';
 
 export { copy };
 
@@ -20,7 +21,8 @@ export type Localized<T = string> = { ar: T; en: T };
 export const LANGS: readonly Lang[] = ['ar', 'en'];
 export const DEFAULT_LANG: Lang = 'ar';
 export const LANG_STORAGE_KEY = 'mithaq-lang';
-export const SITE_URL = 'https://al-mithaq.com';
+/** Public address for canonical links, link previews and the sitemap (set at build time, see vite.config.ts). */
+export const SITE_URL: string = __SITE_URL__;
 
 export const isLang = (value: unknown): value is Lang => value === 'ar' || value === 'en';
 export const dirOf = (lang: Lang): Dir => (lang === 'ar' ? 'rtl' : 'ltr');
@@ -168,6 +170,8 @@ export interface Product {
   id: string;
   sector: SectorId;
   name: Localized;
+  /** Shorter name for the link-preview images, for a name that would need a fourth line there (the images then show this one). */
+  shareName?: Localized;
   summary: Localized;
   image: string;
   /** Intrinsic size of `image`, so it is drawn without layout shift. */
@@ -420,4 +424,11 @@ export function productSeo(product: Product): SeoEntry {
       description: product.summary,
     }
   );
+}
+
+export { ogImages, type OgImage };
+
+/** Link-preview image of a page ('/sectors', '/products/g2200' …); pages without their own image use the Home image. */
+export function ogImageFor(rest: string, lang: Lang): OgImage {
+  return (ogImages[rest] ?? ogImages[''])[lang];
 }

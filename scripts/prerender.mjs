@@ -7,6 +7,7 @@
  * dist/index.html stays the app shell for "/" and unknown addresses (vercel.json rewrites
  * everything that is not a file to it).
  */
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -16,7 +17,17 @@ const dist = join(root, 'dist');
 const ssrDir = join(root, 'dist-ssr');
 
 const template = await readFile(join(dist, 'index.html'), 'utf8');
-const { render, sitePaths, SITE_URL, company } = await import(pathToFileURL(join(ssrDir, 'entry-server.js')).href);
+const { render, sitePaths, SITE_URL, company, ogImages } = await import(pathToFileURL(join(ssrDir, 'entry-server.js')).href);
+console.log(`  site address: ${SITE_URL}`);
+
+// Link previews: every image named in src/data/og-images.ts must be in dist, or shared links show
+// no picture. (scripts/og/check.mjs, earlier in the build, checks that they match src/data.)
+for (const [rest, images] of Object.entries(ogImages)) {
+  for (const image of Object.values(images)) {
+    const file = join(dist, ...image.src.split('?')[0].split('/').filter(Boolean));
+    if (!existsSync(file)) throw new Error(`Link-preview image missing for "${rest || '/'}": ${image.src}`);
+  }
+}
 
 /** React 19 emits a page's hoistable tags (<title>, <meta>, <link>) before the markup. */
 const LEADING_HEAD_TAGS = /^(?:<title>[\s\S]*?<\/title>|<meta\b[^>]*>|<link\b[^>]*>)+/;
@@ -79,6 +90,10 @@ ${entries.join('\n')}
   'utf8',
 );
 console.log(`  wrote sitemap.xml (${entries.length} addresses)`);
+
+// robots.txt names the sitemap at the same address (public/robots.txt is the development copy).
+await writeFile(join(dist, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`, 'utf8');
+console.log('  wrote robots.txt');
 
 // The app shell ("/" and unknown addresses) carries the Arabic home page's tags, rendered from
 // src/data like every page, so link previews of the bare domain follow any copy correction.

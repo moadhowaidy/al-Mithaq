@@ -7,9 +7,9 @@ import { StrictMode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router';
 import App from './App';
-import { DEFAULT_LANG, SITE_URL, company, dirOf, isLang, sitePaths } from './data';
+import { DEFAULT_LANG, SITE_URL, company, dirOf, isLang, ogImages, sitePaths } from './data';
 
-export { sitePaths, SITE_URL, company };
+export { sitePaths, SITE_URL, company, ogImages };
 
 export function render(url: string) {
   const html = renderToString(

@@ -1,0 +1,282 @@
+/*
+ * Link-preview images (Open Graph), direction "Editorial cover": the look. 1200 × 630 at device
+ * scale 1, brand tokens only. Written with logical properties, so the Arabic image (dir="rtl")
+ * mirrors the grid; the logo, the Gateway window, the icons, the pictures and the band never mirror.
+ * Asset addresses are set inline by templates.mjs (from src/data); the fonts are declared there too.
+ *
+ * Grid (English; Arabic is its mirror image):
+ *   main column   x 320–880    centred, inside the 630 × 630 square some apps crop to (x 285–915)
+ *   visual        x 920–1136   reading-end column, outside the square (40 px gutter)
+ *   photo panel   x 920–1200   y 0–460, products with a photo (replaces the picture and figures)
+ *   content       y 64–428     logo at the top line; the main column stands on the y-428 line, the
+ *                              reading-end column on the main column's last baseline (fit.js)
+ *   band          y 460–630    the dark Gateway tile at the height and phase of og-ar/og-en.png
+ */
+:root {
+  --navy: #0E2240;
+  --lane: #F6F3EC;
+  --gold: #EAA620;
+  --steel: #8D98A5;
+  --hair: rgb(141 152 165 / 0.3); /* steel at 30 %: hairlines on navy */
+
+  --m: 64px;          /* safe margin */
+  --band-h: 170px;    /* the Gateway band, y 460–630 */
+  --line: 428px;      /* the line everything stands on, 32 px above the band */
+  --col-start: 320px; /* main column, x 320–880 */
+  --col-w: 560px;
+  --logo-h: 52px;
+  --logo-gap: 40px;
+  --vis-w: 216px;     /* reading-end column, x 920–1136 */
+  --photo-w: 280px;   /* photo panel, x 920–1200 */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--navy); }
+[hidden] { display: none !important; }
+
+.og {
+  position: relative;
+  width: 1200px;
+  height: 630px;
+  overflow: hidden;
+  background: var(--navy);
+  color: var(--lane);
+  /* Arabic words inside English text fall through to Noto Kufi Arabic. */
+  font-family: 'Barlow', 'Noto Kufi Arabic', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+/* Noto Kufi Arabic covers the Arabic ranges only, so Latin runs fall through to Barlow (as on the site). */
+.og:lang(ar) { font-family: 'Noto Kufi Arabic', 'Barlow', sans-serif; }
+.latin { font-family: 'Barlow', sans-serif; unicode-bidi: isolate; }
+.nowrap { white-space: nowrap; }
+/* The site draws the spaces of Arabic text in Noto Kufi Arabic (0.34 em, measured on the built
+   pages); here they fall through to Barlow (0.20 em), so Arabic text gets the difference back.
+   Latin runs keep Barlow's own spacing. */
+:lang(ar) { word-spacing: 0.14em; }
+.latin, :lang(en) { word-spacing: normal; }
+
+/* ---- The Gateway band: physical position, identical in both languages ---- */
+.band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--band-h);
+  background-position: 0 0;
+  background-size: auto var(--band-h);
+  background-repeat: repeat-x;
+}
+
+/* ---- Logo: the language's reversed lockup, at the reading start of the main column ---- */
+.logo {
+  position: absolute;
+  top: var(--m);
+  inset-inline-start: var(--col-start);
+  height: var(--logo-h);
+  width: auto;
+  display: block;
+}
+
+/* ---- Main column: kicker, hairline, title, lead (or phone and email) ---- */
+.content {
+  position: absolute;
+  inset-inline-start: var(--col-start);
+  width: var(--col-w);
+  top: calc(var(--m) + var(--logo-h) + var(--logo-gap));
+  height: calc(var(--line) - var(--m) - var(--logo-h) - var(--logo-gap));
+  display: flex;
+  flex-direction: column;
+}
+/* Stands on the line; a stack that is too tall overflows downwards, where the fitting sees it.
+   Its 12 px of padding (taken back by the margin) hold the glyph box of a title that ends the
+   stack (see .title), so the stack's box contains everything it draws. */
+.stack {
+  margin-top: auto;
+  padding-bottom: 12px;
+  margin-bottom: -12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.kicker {
+  max-width: 100%;
+  white-space: nowrap;
+  font-family: 'Barlow Semi Condensed', 'Noto Kufi Arabic', sans-serif;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.kicker:lang(ar) {
+  font-family: 'Noto Kufi Arabic', 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* The one precise line of gold: the kicker's hairline (it leaves with the kicker). */
+.rule { display: block; width: 56px; height: 3px; background: var(--gold); margin-top: 16px; }
+.rule:lang(ar) { margin-top: 10px; }
+
+.title {
+  /* Sizes tried by the fitting (fit.js), in px. */
+  --title-max: 112;
+  --title-one-line-min: 84;
+  --title-multi-max: 80;
+  --title-min: 64;
+  --title-max-lines: 3;
+  max-width: 100%;
+  font-weight: 700;
+  font-size: 112px;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: var(--lane);
+  text-wrap: balance;
+  /* The box holds the glyphs' full height (Barlow's is 1.19 em, more than its 1.02 line), so
+     nothing overflows it: 0.1 em of padding above and below, taken back by the margins. */
+  padding-block: 0.1em;
+  margin-top: calc(20px - 0.1em);
+  margin-bottom: -0.1em;
+  /* Optical alignment: Barlow's side bearing at display size would indent the title 3–6 px. */
+  margin-inline-start: -0.045em;
+}
+.title:lang(ar) {
+  --title-max: 104;
+  --title-one-line-min: 76;
+  --title-multi-max: 72;
+  --title-min: 60;
+  margin-top: calc(6px - 0.1em);
+  margin-inline-start: 0;
+  font-family: 'Noto Kufi Arabic', 'Barlow', sans-serif;
+  font-weight: 900;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+/* A Latin model code inside an Arabic title: Barlow 900 matches the stroke of Noto Kufi Arabic 900
+   (measured at 68 px: 13 px stems against 13–14; Barlow 700 has 10). */
+.title:lang(ar) .latin { font-weight: 900; }
+/* Without its kicker (a long product name), the title opens the stack. */
+.stack > .title:first-child,
+.kicker[hidden] ~ .title { margin-top: -0.1em; }
+
+.lead {
+  max-width: 100%;
+  margin-top: 18px;
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.3;
+  color: var(--steel);
+  text-wrap: balance;
+}
+.lead:lang(ar) { margin-top: 8px; font-size: 28px; line-height: 1.6; }
+
+/* Contact: phone and email, each left to right in both languages; on two lines (without the dot)
+   when they do not share one (fit.js adds .stacked). */
+.details {
+  max-width: 100%;
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 4px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.3;
+  color: var(--lane);
+}
+.detail { unicode-bidi: isolate; white-space: nowrap; }
+.sep { width: 6px; height: 6px; border-radius: 50%; background: var(--steel); margin-inline: 18px; }
+.details.stacked { flex-direction: column; align-items: flex-start; }
+.details.stacked .sep { display: none; }
+
+/* ---- Visual: the reading-end column, hung from the reading-end margin (x 1136, or x 64 in
+   Arabic) like the gates of the band below it. Its content stands at its foot: on the y-428 line,
+   or (fit.js) on the main column's last baseline: the Gateway window's foot, the gold word's and
+   the last key figure's baselines. ---- */
+.visual {
+  position: absolute;
+  inset-inline-end: var(--m);
+  width: var(--vis-w);
+  top: var(--m);
+  height: calc(var(--line) - var(--m));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.visual > * { margin-top: auto; flex: none; }
+
+/* Sector icons: a calm 2 × 4 grid in the site's order (reading order in both languages) */
+.icons { display: grid; grid-template-columns: repeat(2, 56px); grid-auto-rows: 56px; gap: 32px 64px; }
+.icons img { display: block; width: 56px; height: 56px; }
+
+/* The word ميثاق: the About page's editorial feature. Its line holds the glyphs' full height
+   (1.34 em in Noto Kufi Arabic), so it stands on the line without overflowing the column. */
+.word {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-weight: 900;
+  font-size: 70px;
+  line-height: 1.4;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* The Gateway window (Partners, Contact): the M as a window on the dusk road, as in the Home
+   hero, with its 1 px steel hairline and the five gold dashes in the road under it. */
+.window { position: relative; width: var(--vis-w); aspect-ratio: 700 / 630; }
+.window-clip { position: absolute; inset: 0; overflow: hidden; }
+.window-clip img { position: absolute; display: block; max-width: none; }
+.window svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* Product picture (illustration) with the site's dusk glow (radial gold at 12 %); placed by the
+   template: at the top of the column above the key figures, or standing on the line (Products). */
+.picture { position: absolute; inset-inline-end: var(--m); display: block; }
+.glow { position: absolute; background: radial-gradient(closest-side, rgb(234 166 32 / 0.12), transparent); }
+
+/* Product photo: a full-bleed panel on the reading-end edge, down to the band, with a cool
+   navy grade so real photographs sit in the brand's dusk palette. */
+.photo {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  width: var(--photo-w);
+  height: calc(630px - var(--band-h));
+  overflow: hidden;
+  background: var(--navy);
+}
+.photo img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(0.7) contrast(1.05); }
+.photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgb(14 34 64 / 0.34), rgb(14 34 64 / 0.5));
+  mix-blend-mode: multiply;
+}
+
+/* Key figures, as on the product page: value Lane White, unit gold, label steel */
+.figures { display: flex; flex-direction: column; row-gap: 14px; }
+.figure { width: var(--vis-w); display: flex; flex-direction: column; padding-top: 10px; border-top: 2px solid var(--hair); }
+.figure-line { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 2px; }
+.figure-value {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--lane);
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+.figure-unit { font-weight: 600; font-size: 24px; line-height: 1; color: var(--gold); white-space: nowrap; }
+.figure-unit:lang(ar) { font-weight: 700; }
+.figure-label { margin-top: 6px; font-weight: 500; font-size: 24px; line-height: 1.2; color: var(--steel); text-wrap: balance; }
+.figure-label:lang(ar) { margin-top: 0; line-height: 1.45; }
+
+/* Arabic is never letter-spaced, wherever it appears (the site has the same global rule). */
+:lang(ar) { letter-spacing: 0 !important; }

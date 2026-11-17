@@ -1,18 +1,20 @@
 import { useLocation } from 'react-router';
-import { SITE_URL, brand, company, stripLang, type Localized } from '../../data';
+import { SITE_URL, company, ogImageFor, stripLang, type Localized } from '../../data';
 import { useLanguage } from '../../data/i18n';
 
 interface SeoProps {
   title: Localized | string;
   description: Localized | string;
-  /** For the 404 page: no canonical or alternates, and robots noindex. */
+  /** The 404 page: kept out of search results and without canonical or hreflang links. */
   noindex?: boolean;
 }
 
 /**
- * Page title and meta tags. React 19 places them in <head>; the pre-renderer copies them
- * into each page's static HTML. Canonical and hreflang alternates point to https://al-mithaq.com,
- * with x-default on the Arabic page.
+ * Title, description, canonical, hreflang alternates and the link preview (Open Graph and
+ * X/Twitter tags) of the current page in the current language. React 19 hoists these tags into
+ * <head>; scripts/prerender.mjs writes them into every pre-rendered page, which is what WhatsApp,
+ * Facebook, LinkedIn, X and Telegram read. Every address is absolute (SITE_URL); the preview
+ * image is the page's own (src/data/og-images.ts), or the Home image for pages without one.
  */
 export default function Seo({ title, description, noindex = false }: SeoProps) {
   const { lang, t } = useLanguage();
@@ -22,6 +24,8 @@ export default function Seo({ title, description, noindex = false }: SeoProps) {
   const pageTitle = typeof title === 'string' ? title : t(title);
   const pageDescription = typeof description === 'string' ? description : t(description);
   const url = urlFor(lang);
+  const image = ogImageFor(rest, lang);
+  const imageUrl = `${SITE_URL}${image.src}`;
 
   return (
     <>
@@ -42,13 +46,19 @@ export default function Seo({ title, description, noindex = false }: SeoProps) {
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDescription} />
       <meta property="og:url" content={url} />
-      <meta property="og:image" content={`${SITE_URL}${brand.og[lang]}`} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={company.name[lang]} />
       <meta property="og:locale" content={lang === 'ar' ? 'ar_LY' : 'en_GB'} />
       <meta property="og:locale:alternate" content={lang === 'ar' ? 'en_GB' : 'ar_LY'} />
+      <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:secure_url" content={imageUrl} />
+      <meta property="og:image:type" content={image.type} />
+      <meta property="og:image:width" content={String(image.width)} />
+      <meta property="og:image:height" content={String(image.height)} />
+      <meta property="og:image:alt" content={image.alt} />
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={pageTitle} />
+      <meta name="twitter:description" content={pageDescription} />
+      <meta name="twitter:image" content={imageUrl} />
+      <meta name="twitter:image:alt" content={image.alt} />
     </>
   );
 }

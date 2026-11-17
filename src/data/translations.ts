@@ -242,6 +242,13 @@ export const copy = {
       description: { ar: "هذا الطريق لا يؤدي إلى أي صفحة.", en: "This road doesn't lead to a page." },
     },
   },
+  // Added during the build: descriptions of the link-preview images (og:image:alt), written into
+  // src/data/og-images.ts by scripts/og-images.mjs: homeAlt for the official Home images, pageAlt
+  // for the images of the other pages ({title} is the title drawn on the image).
+  og: {
+    homeAlt: { ar: "شعار {company} وعبارة «{slogan}»", en: "{company} logo and the slogan “{slogan}”" },
+    pageAlt: { ar: "{title}، {company}", en: "{title}, {company}" },
+  },
   // Added during the build: accessibility names and the small kickers of the page openings.
   a11y: {
     skipToContent: { ar: "الانتقال إلى المحتوى", en: "Skip to content" },
