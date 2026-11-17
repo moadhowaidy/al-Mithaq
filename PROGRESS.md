@@ -33,6 +33,12 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 - Pre-rendered openings: with the script held back 4 s, page titles are visible by ~0.9–1.3 s and never vanish or replay when the app takes over.
 - Mobile menu, at the top and after scrolling: full screen, opens from the inline end, the page behind it is inert, focus is trapped, Escape closes it and returns focus to the menu button, page scroll is locked while open.
 
+## Deployment
+
+- **Vercel project** `al-mithaq` in the team "moad's projects", deployed on 17 Nov 2026 (Vercel builds it with `npm run build`). Vercel makes a project's first deployment a Production one, so it lives at the project's own address: **https://al-mithaq-orpin.vercel.app** (publicly reachable; later deployments can be previews with `npx vercel deploy`). al-mithaq.com is **not** connected and no DNS was changed.
+- Checked on the live site: every pre-rendered page is served as a file with the right `lang`, `dir` and title; `.html` addresses and trailing slashes redirect (308) to the clean address; "/", unknown prefixes and unknown pages fall back to the app shell (redirect or 404 page); security headers are set and `/assets/` is cached for a year; sitemap, robots and manifest are served; the language switch, the 404 page and the page-opening intro behave as on the local build.
+- `vercel link` also connected the project to the GitHub repository `moadhowaidy/al-Mithaq` (this folder's `origin`, which has no branches yet). Once `main` is pushed there, Vercel deploys every push automatically (`main` to Production). It also wrote a local `.env.local` with a Vercel token (git-ignored).
+
 ## Decisions (for review)
 
 - **Brand assets** from `Mithaq_Web_Assets.zip` were copied unchanged into `public/`. The logo package README (clear space, minimum sizes, colours) is kept in `docs/`; its print PDFs and PNGs are not part of the website.
@@ -45,7 +51,7 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 - **Addresses without a language**: `/products` becomes `/<preferred>/products`; an unknown two-letter prefix (`/fr/products`) is replaced. Without JavaScript, `/` forwards to `/ar`.
 - **Quote band**: the 50° cut is a chamfer on the inline-start top corner (the angle is exact: tan 50°). A full-height 50° edge would take most of a phone's width.
 - **404**: navy page with the Gateway mark, `noindex`, no quote band.
-- **Hosting**: `vercel.json` rewrites every address that is not a file to the app shell (`dist/index.html`, written as `/` because Vercel's `cleanUrls` expects destinations without `.html`), so deep links work on refresh. Pre-rendered pages are files and are served first. Unknown addresses show the site's 404 page with HTTP status 200; if real 404 status codes are wanted later, the rewrite can be limited and a `404.html` added. To verify on the first preview deployment.
+- **Hosting**: `vercel.json` rewrites every address that is not a file to the app shell (`dist/index.html`, written as `/` because Vercel's `cleanUrls` expects destinations without `.html`), so deep links work on refresh. Pre-rendered pages are files and are served first. Unknown addresses show the site's 404 page with HTTP status 200; if real 404 status codes are wanted later, the rewrite can be limited and a `404.html` added. Verified on Vercel (17 Nov 2026, see "Deployment" below).
 - **Fonts**: heading weights of both languages are preloaded (build plugin in `vite.config.ts`); the remaining weights and the other language's header logo are fetched when the browser is idle, so the switch never shows a font swap.
 - **Form errors**: the palette has no red, so invalid fields get a heavier navy border plus a text message and an error summary.
 - **Phone check**: 7–15 digits after removing spaces, dashes and a leading "+" (dots and brackets are tolerated too); Arabic-Indic digits typed on Arabic keyboards are converted to 0–9.
