@@ -104,6 +104,14 @@ export default function Footer() {
                   <span className="inline-block">{sentence}</span>
                 </Fragment>
               ))}
+            <span className="mt-1 block text-xs">
+              <span dir="ltr" className="font-num">
+                Powered by{' '}
+                <a href="https://swiftscaled.com" target="_blank" rel="noopener noreferrer" className="text-blood-red">
+                  SWIFTSCALE
+                </a>
+              </span>
+            </span>
           </p>
           {/* Only the address is isolated left to right; the line keeps the page's alignment. */}
           <p className="font-num tracking-wide">
