@@ -107,6 +107,12 @@
     scroll-padding-top: calc(var(--header-h) + 24px);
     scroll-padding-bottom: 24px;
   }
+  /* The header's own controls (and the skip link) are always on screen, so focusing them must
+     never trigger the padding above: that would scroll the page up whenever they get focus. */
+  header :is(a, button),
+  .skip-link {
+    scroll-margin-top: calc(-1 * (var(--header-h) + 24px));
+  }
 }
 
 /* =====================================================================

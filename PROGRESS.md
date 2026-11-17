@@ -15,7 +15,7 @@ The full brief is saved in [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md); code 
 | 4 | Home | Done |
 | 5 | Sectors, Products and the product page | Done |
 | 6 | About, Partners and Contact (map card, WhatsApp Business button) | Done |
-| 7 | SEO, 404, `vercel.json`, pre-rendering, final checks | 404, `vercel.json`, pre-rendering and sitemap done; final review in progress |
+| 7 | SEO, 404, `vercel.json`, pre-rendering, final checks | Done (final review by six independent reviewers; every finding fixed or recorded below) |
 
 Milestones 1–3 were built and checked together and share one commit. Milestones 4–6 were built in parallel (one builder and one independent reviewer per page group), then integrated: shared helpers moved into `src/components/ui/` (`Typeset.tsx`, `ChevronStrip` in `GatewayBand.tsx`, the reworked `ClipReveal`).
 
@@ -23,21 +23,22 @@ Milestones 1–3 were built and checked together and share one commit. Milestone
 
 React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `src/index.css`) · React Router 8 (declarative `BrowserRouter`) · framer-motion 14 (light `LazyMotion` mode) · lucide-react · `@fontsource` (Noto Kufi Arabic, Barlow, Barlow Semi Condensed).
 
-## Checks (after milestones 4–6, production build)
+## Checks (final production build)
 
-- `npm run build` passes: type-check, client build, 14 pre-rendered pages, `sitemap.xml`. Script 132 KB and CSS 12 KB (brotli).
-- SEO check of every pre-rendered page: one title and description, canonical, `hreflang` ar/en/x-default (Arabic), Open Graph image of the page's language, sitemap lists all 14 addresses.
-- All 18 routes (the 14 pages, two filtered views, a pre-filled Contact address and a 404) at 375 / 768 / 1280 px: no horizontal scroll, correct `lang`/`dir`, no console errors, no failed requests, no letter-spaced Arabic, every image sized and loaded, exactly one h1.
-- Brief rules on all pages at 375 and 1280: no gold or steel text on light grounds, phone numbers left to right, tap targets at least 44 px, `wa.me` only on the Contact page (one link).
-- Language switch on 9 pages, both directions, scrolled and from the top: path, query, hash and scroll position kept; header logo swaps; a second click is ignored; focus returns to the toggle; the live region announces; the choice is saved. Overlay at ~45 ms, swap at 350–465 ms (the new page renders under the cover), overlay gone at ~740 ms. Reduced motion: a crossfade, no sweep. Back/Forward keep the chosen language, also across a page reload.
-- Mobile menu: opens from the inline end, traps focus, Escape closes it and returns focus to the menu button, page scroll is locked while open.
+- `npm run build` passes: type-check, client build, 14 pre-rendered pages, `sitemap.xml`, app shell and manifest from `src/data`. Script 127 KB and CSS 11 KB (brotli).
+- SEO check of every pre-rendered page: one title and description, canonical, `hreflang` ar/en/x-default (Arabic), Open Graph image of the page's language; the sitemap lists all 14 addresses.
+- All 18 routes (the 14 pages, two filtered views, a pre-filled Contact address and a 404) at 375 / 768 / 1280 px, 54 runs: no horizontal scroll, correct `lang`/`dir`, no console errors, no failed requests, no letter-spaced Arabic, every image sized and loaded, exactly one h1.
+- Brief rules on 15 pages at 375 and 1280, 30 runs: no gold or steel text on light grounds, phone numbers left to right, tap targets at least 44 px (the breadcrumb's "Home" is widened to 48 px by an invisible hit area), `wa.me` only on the Contact page (one link).
+- Language switch, 15 runs on 9 pages (both directions, from the top and scrolled, 4× CPU throttling, reduced motion, Back/Forward): path, query, hash and the exact scroll position kept; header logo swaps; a second click is ignored; focus returns to the toggle; the live region announces; the choice is saved. Cover complete at ~300 ms, swap at ~340–410 ms, the 300 ms reveal always plays in full and the overlay leaves only when the panel is off screen (~770–1000 ms; ~2–2.5 s on a 4× slower CPU). Reduced motion: a crossfade of ~200–400 ms, no sweep. Back/Forward keep the chosen language, also across a page reload.
+- Pre-rendered openings: with the script held back 4 s, page titles are visible by ~0.9–1.3 s and never vanish or replay when the app takes over.
+- Mobile menu, at the top and after scrolling: full screen, opens from the inline end, the page behind it is inert, focus is trapped, Escape closes it and returns focus to the menu button, page scroll is locked while open.
 
 ## Decisions (for review)
 
 - **Brand assets** from `Mithaq_Web_Assets.zip` were copied unchanged into `public/`. The logo package README (clear space, minimum sizes, colours) is kept in `docs/`; its print PDFs and PNGs are not part of the website.
 - **English spelling** is "Mithaq", held in `company` in `src/data/index.ts`. The brief's copy also contains the name inside some sentences (SEO titles, footer, form message); a spelling change means a search-and-replace for "Mithaq" in `src/data/`.
 - **Pre-rendering** uses React 19's `renderToString` with React Router's `StaticRouter` (`src/entry-server.tsx` + `scripts/prerender.mjs`) instead of `vite-react-ssg`. Every page in both languages gets its own static HTML (`dist/<lang>/<page>.html`) with its own title, description, canonical, hreflang alternates and the Open Graph image of its language, so link previews on WhatsApp and social networks show the right page. In the browser the app then renders fresh on top (no hydration), so filtered views (`?sector=`) and the pre-filled quote form (`?product=`) are correct from the first frame. A CSS fallback shows the pre-rendered content if the script fails to start.
-- **framer-motion light mode** (`LazyMotion` + `m.*`) keeps the script about 15 KB (gzipped) smaller. The whole script is about 133 KB gzipped, most of it React itself.
+- **framer-motion light mode** (`LazyMotion` + `m.*`) keeps the script about 15 KB (gzipped) smaller, and key figures count up with a small frame loop instead of the animation engine. The whole script is 127 KB brotli-compressed (148 KB gzipped), most of it React itself.
 - **Two contexts in `i18n.tsx`**: the language (`useLanguage`) and the running switch (`useLanguageTransition`), so the four phase changes of a switch never re-render the whole page mid-sweep.
 - **Toggle**: the pill is always laid out left to right (`ع | EN`), so its gold segment travels in the same direction as the sweep. The header button uses the 44 px size to line up with the 44 px toggle inside the 80 px header; all other buttons are 52 px.
 - **Saved language**: only the toggle writes `mithaq-lang` (as specified). Shared links always open in their own language. Back/Forward follow the language of the visit; if a Back/Forward step reloads the page, the saved choice is used.
