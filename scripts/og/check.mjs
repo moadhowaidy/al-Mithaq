@@ -16,7 +16,7 @@
  *   checkOgImages({ root, data, ogImages, ogImageSources }) → { problems, notes }
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { ogFingerprint } from './fingerprint.mjs';
@@ -70,14 +70,15 @@ export function checkOgImages({ root, data, ogImages, ogImageSources = {} }) {
       if (!image) continue; // reported above
       if (ogImageSources[rest]?.[lang] !== ogFingerprint(root, page)) {
         const what = image.alt !== page.alt ? ` (it was made for "${image.alt}", the page is now "${page.alt}")` : '';
-        problems.push(`${name(rest, lang)}: the image no longer matches src/data or the template${what}`);
+        problems.push(`${name(rest, lang)}: the image no longer matches src/data, the template or a file it loads (fonts, logo, pictures)${what}`);
       } else if (image.type !== `image/${page.format}`) problems.push(`${name(rest, lang)}: the manifest says ${image.type}, the page is now ${page.format}`);
     }
   }
   return { problems, notes };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+// Run directly (also through a symlinked or junctioned folder: Node reports this module by its real path).
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) {
   const { loadSiteData } = await import('./load-data.mjs');
   const root = resolve(import.meta.dirname, '..', '..');
   const { data, manifest } = await loadSiteData(root);

@@ -3,8 +3,10 @@
  * through Vite, so the TypeScript modules and the build-time constants (vite.config.ts) work as on
  * the site. Used by scripts/og-images.mjs and scripts/og/check.mjs.
  *
- * Vite's dependency optimizer is switched off: loading src/data does not need it, and when the
- * server closes while it is still running it leaves a node_modules/.vite/deps_temp_* folder behind.
+ * Vite's dependency discovery is switched off: loading src/data does not need it, and when the
+ * server closes while it is still scanning it leaves a node_modules/.vite/deps_temp_* folder
+ * behind. (@vitejs/plugin-react still asks for React to be pre-bundled into node_modules/.vite/deps,
+ * which is harmless.)
  */
 import { createServer } from 'vite';
 

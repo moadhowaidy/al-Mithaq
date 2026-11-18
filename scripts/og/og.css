@@ -51,9 +51,10 @@ html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--n
 .nowrap { white-space: nowrap; }
 /* The site draws the spaces of Arabic text in Noto Kufi Arabic (0.34 em, measured on the built
    pages); here they fall through to Barlow (0.20 em), so Arabic text gets the difference back.
-   Latin runs keep Barlow's own spacing. */
+   Latin runs, the phone and email, and key-figure values keep Barlow's own spacing (on the site
+   they are set in Barlow too). */
 :lang(ar) { word-spacing: 0.14em; }
-.latin, :lang(en) { word-spacing: normal; }
+.latin, .detail, .figure-value, :lang(en) { word-spacing: normal; }
 
 /* ---- The Gateway band: physical position, identical in both languages ---- */
 .band {
