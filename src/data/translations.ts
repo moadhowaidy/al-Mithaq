@@ -33,7 +33,7 @@ export const copy = {
   },
   slogan: { ar: "كلمتنا ميثاق", en: "Our word is our pledge." },
   home: {
-    heroKicker: { ar: "الخمس · ليبيا", en: "Al-Khums · Libya" },
+    heroKicker: { ar: "جنزور، طرابلس · ليبيا", en: "Janzour, Tripoli · Libya" },
     heroTitle: { ar: "نجهّز الطرق والمدن والصناعة", en: "Equipping roads, cities and industry" },
     heroSubtitle: { ar: "ثمانية قطاعات، ميثاقٌ واحد.", en: "Eight sectors. One pledge." },
     heroBody: {
@@ -103,8 +103,8 @@ export const copy = {
       en: "Mithaq is an Arabic word for a covenant, a binding promise. That is how we treat every supply.",
     },
     whatWeDo: {
-      ar: "شركة ميثاق للتجهيزات العامة توفّر المعدات والخدمات للشركات والجهات في ثمانية قطاعات، مع تركيز خاص على الطرق والخدمات البلدية. مقرنا الرئيسي في مدينة الخمس، ليبيا.",
-      en: "Mithaq General Supplies provides equipment and services to companies and public bodies across eight sectors, with a special focus on roads and municipal services. Our head office is in Al-Khums, Libya.",
+      ar: "شركة ميثاق للتجهيزات العامة توفّر المعدات والخدمات للشركات والجهات في ثمانية قطاعات، مع تركيز خاص على الطرق والخدمات البلدية. مقرنا الرئيسي في جنزور، طرابلس، ليبيا.",
+      en: "Mithaq General Supplies provides equipment and services to companies and public bodies across eight sectors, with a special focus on roads and municipal services. Our head office is in Janzour, Tripoli, Libya.",
     },
     values: [
       { title: { ar: "الالتزام", en: "Commitment" }, text: { ar: "ما نتفق عليه نلتزم به.", en: "What we agree, we honour." } },
@@ -186,19 +186,19 @@ export const copy = {
   },
   location: {
     kicker: { ar: "المقر الرئيسي", en: "Head office" },
-    title: { ar: "موقعنا في مدينة الخمس", en: "Find us in Al-Khums" },
-    lead: { ar: "على ساحل ليبيا المتوسطي، على بعد نحو 120 كم شرق طرابلس.", en: "On Libya's Mediterranean coast, about 120 km east of Tripoli." },
-    city: { ar: "مدينة الخمس، ليبيا", en: "Al-Khums, Libya" },
+    title: { ar: "موقعنا في جنزور", en: "Find us in Janzour" },
+    lead: { ar: "على ساحل البحر المتوسط، في جنزور غرب مدينة طرابلس.", en: "On the Mediterranean coast, in Janzour, west of Tripoli." },
+    city: { ar: "جنزور، طرابلس، ليبيا", en: "Janzour, Tripoli, Libya" },
     directions: { ar: "احصل على الاتجاهات", en: "Get directions" },
     openMap: { ar: "افتح في خرائط Google", en: "Open in Google Maps" },
     newTab: { ar: "يفتح في نافذة جديدة", en: "opens in a new tab" },
-    mapTitle: { ar: "خريطة المقر الرئيسي لشركة ميثاق في مدينة الخمس", en: "Map of Mithaq's head office in Al-Khums" },
+    mapTitle: { ar: "خريطة المقر الرئيسي لشركة ميثاق في جنزور، طرابلس", en: "Map of Mithaq's head office in Janzour, Tripoli" },
   },
   footer: {
     pages: { ar: "الصفحات", en: "Pages" },
     sectors: { ar: "القطاعات", en: "Sectors" },
     contact: { ar: "تواصل", en: "Contact" },
-    headOffice: { ar: "المقر الرئيسي: الخمس، ليبيا", en: "Head office: Al-Khums, Libya" },
+    headOffice: { ar: "المقر الرئيسي: جنزور، طرابلس، ليبيا", en: "Head office: Janzour, Tripoli, Libya" },
     rights: { ar: "© 2026 شركة ميثاق للتجهيزات العامة. جميع الحقوق محفوظة.", en: "© 2026 Mithaq General Supplies. All rights reserved." },
   },
   notFound: {
@@ -218,8 +218,8 @@ export const copy = {
     home: {
       title: { ar: "ميثاق للتجهيزات العامة | معدات الطرق والبلديات والسلامة", en: "Mithaq General Supplies | Road, municipal and safety equipment" },
       description: {
-        ar: "شركة ميثاق للتجهيزات العامة في الخمس، ليبيا: توريد معدات الطرق والخدمات البلدية والسلامة والنفط والغاز وقطع الغيار في ثمانية قطاعات.",
-        en: "Mithaq General Supplies, Al-Khums, Libya: equipment for roads, municipal services, safety, oil and gas, spare parts, medical and office needs across eight sectors.",
+        ar: "شركة ميثاق للتجهيزات العامة في جنزور، طرابلس، ليبيا: توريد معدات الطرق والخدمات البلدية والسلامة والنفط والغاز وقطع الغيار في ثمانية قطاعات.",
+        en: "Mithaq General Supplies, Janzour, Tripoli, Libya: equipment for roads, municipal services, safety, oil and gas, spare parts, medical and office needs across eight sectors.",
       },
     },
     sectors: {
@@ -236,7 +236,7 @@ export const copy = {
     },
     about: {
       title: { ar: "من نحن | ميثاق للتجهيزات العامة", en: "About | Mithaq General Supplies" },
-      description: { ar: "ميثاق تعني العهد: شركة توريد معدات وخدمات في ثمانية قطاعات، مقرها الخمس، ليبيا.", en: "Mithaq means covenant: an equipment and services supplier across eight sectors, based in Al-Khums, Libya." },
+      description: { ar: "ميثاق تعني العهد: شركة توريد معدات وخدمات في ثمانية قطاعات، مقرها جنزور، طرابلس، ليبيا.", en: "Mithaq means covenant: an equipment and services supplier across eight sectors, based in Janzour, Tripoli, Libya." },
     },
     partners: {
       title: { ar: "الشركاء | ميثاق للتجهيزات العامة", en: "Partners | Mithaq General Supplies" },
@@ -244,7 +244,7 @@ export const copy = {
     },
     contact: {
       title: { ar: "تواصل معنا | ميثاق للتجهيزات العامة", en: "Contact | Mithaq General Supplies" },
-      description: { ar: "اطلب عرض سعر من شركة ميثاق للتجهيزات العامة. المقر الرئيسي: الخمس، ليبيا.", en: "Request a quote from Mithaq General Supplies. Head office: Al-Khums, Libya." },
+      description: { ar: "اطلب عرض سعر من شركة ميثاق للتجهيزات العامة. المقر الرئيسي: جنزور، طرابلس، ليبيا.", en: "Request a quote from Mithaq General Supplies. Head office: Janzour, Tripoli, Libya." },
     },
     // Added during the build: the 404 page.
     notFound: {
@@ -272,7 +272,7 @@ export const copy = {
   pageKickers: {
     sectors: { ar: "ما نورّده", en: "What we supply" },
     products: { ar: "الكتالوج", en: "Catalogue" },
-    contact: { ar: "الخمس · ليبيا", en: "Al-Khums · Libya" },
+    contact: { ar: "جنزور، طرابلس · ليبيا", en: "Janzour, Tripoli · Libya" },
   },
 };
 

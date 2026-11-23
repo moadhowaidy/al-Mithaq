@@ -44,8 +44,8 @@ export const ogImages: Readonly<Record<string, { ar: OgImage; en: OgImage }>> = 
     en: { src: '/og/en/partners.png?v=0f3cf363bd', width: 1200, height: 630, type: 'image/png', alt: 'Our partners, Mithaq General Supplies' },
   },
   '/contact': {
-    ar: { src: '/og/ar/contact.png?v=dd68fff36f', width: 1200, height: 630, type: 'image/png', alt: 'تواصل معنا، شركة ميثاق للتجهيزات العامة' },
-    en: { src: '/og/en/contact.png?v=048ab57ade', width: 1200, height: 630, type: 'image/png', alt: 'Contact us, Mithaq General Supplies' },
+    ar: { src: '/og/ar/contact.png?v=c3f6bbcbf6', width: 1200, height: 630, type: 'image/png', alt: 'تواصل معنا، شركة ميثاق للتجهيزات العامة' },
+    en: { src: '/og/en/contact.png?v=7b9b64124d', width: 1200, height: 630, type: 'image/png', alt: 'Contact us, Mithaq General Supplies' },
   },
 };
 
@@ -56,5 +56,5 @@ export const ogImageSources: Readonly<Record<string, { ar: string; en: string }>
   '/products/g2200': { ar: '16439328c0', en: '3114a4e5c1' },
   '/about': { ar: '262d8f7206', en: '0f0159e9e3' },
   '/partners': { ar: '3ee11ae903', en: '6a1cd5c0c6' },
-  '/contact': { ar: 'd59ae6218e', en: '57ed53858e' },
+  '/contact': { ar: 'acc08da554', en: 'cb784dbc86' },
 };

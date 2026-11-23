@@ -55,7 +55,7 @@ export function setFigures(source: string): ReactNode {
   );
 }
 
-/** Keeps hyphenated compounds ("Four-Wheel", "Al-Khums") on one line, so a heading never breaks at the hyphen. */
+/** Keeps hyphenated compounds ("Four-Wheel", "Al-Mithaq") on one line, so a heading never breaks at the hyphen. */
 export function keepCompounds(text: string): ReactNode {
   const parts = text.split(/(\S+-\S+)/);
   if (parts.length === 1) return text;

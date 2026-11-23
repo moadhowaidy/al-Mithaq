@@ -52,7 +52,7 @@ export const company = {
   name: { ar: 'شركة ميثاق للتجهيزات العامة', en: 'Mithaq General Supplies' },
   shortName: { ar: 'ميثاق', en: 'Mithaq' },
   slogan: copy.slogan, // [CONFIRM]
-  city: { ar: 'الخمس', en: 'Al-Khums' },
+  city: { ar: 'جنزور، طرابلس', en: 'Janzour, Tripoli' },
   country: { ar: 'ليبيا', en: 'Libya' },
   founded: null as number | null, // [CONFIRM] the About "Company facts" block stays hidden while this is null
   registration: null as Localized | null, // [CONFIRM]
@@ -292,13 +292,14 @@ export const contact = {
   email: 'info@al-mithaq.com',
   headOffice: {
     label: { ar: 'المقر الرئيسي', en: 'Head office' },
-    value: { ar: 'مدينة الخمس، ليبيا', en: 'Al-Khums, Libya' },
+    value: { ar: 'جنزور، طرابلس، ليبيا', en: 'Janzour, Tripoli, Libya' },
     street: null as Localized | null, // [CONFIRM]
   },
   map: {
     link: 'https://maps.app.goo.gl/JxddCUthB8No13AE7?g_st=iw',
-    lat: null as number | null, // [CONFIRM] when lat and lng are set, the Contact page embeds the map
-    lng: null as number | null, // [CONFIRM]
+    // The pin of the map link itself (its redirect carries q=32.8461561,13.0718402). MOAD to confirm it is the right building.
+    lat: 32.8461561 as number | null, // when lat and lng are set, the Contact page embeds the map
+    lng: 13.0718402 as number | null,
   },
   hours: null as Localized | null, // [CONFIRM] the Contact page shows "To be added" while null
   social: [] as SocialLink[], // [CONFIRM] real links only; no icons are shown while empty
@@ -375,7 +376,7 @@ export function businessJsonLd(): Record<string, unknown> {
     logo: 'https://al-mithaq.com/icon-512.png',
     email: contact.email,
     telephone: contact.phones[0].tel,
-    address: { '@type': 'PostalAddress', addressLocality: 'Al-Khums', addressCountry: 'LY' },
+    address: { '@type': 'PostalAddress', addressLocality: 'Janzour, Tripoli', addressCountry: 'LY' },
     hasMap: contact.map.link,
   };
   const { lat, lng } = contact.map;
