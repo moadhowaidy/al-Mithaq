@@ -90,7 +90,7 @@ React 19.3 · Vite 8 · TypeScript 7 · Tailwind CSS 4.3 (`@theme` tokens in `sr
 ## TODO for the client ([CONFIRM] items)
 
 1. Slogan: كلمتنا ميثاق · "Our word is our pledge."
-2. Head-office map coordinates (`contact.map.lat`, `lng`) and street address. Until then the Contact page shows the map card with the "Open in Google Maps" button.
+2. Head-office map coordinates [CONFIRM] (`contact.map.lat`, `lng`, copied from the pin of the map link by MOAD; never estimated) and street address. The map link itself is confirmed by the company. Until the coordinates are set, the Contact page shows the navy map card with "Open in Google Maps" only (no iframe, no "Get directions") and the structured data has no `geo`; once set, the embedded map, the directions button and `geo` appear by themselves.
 3. Working hours. The Contact page shows "To be added" / "سيُضاف قريباً"; the footer leaves hours out.
 4. Social media links (no icons are shown until real links exist).
 5. Founding year and registration details (the About "Company facts" block stays hidden until then).

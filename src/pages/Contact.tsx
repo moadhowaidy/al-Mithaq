@@ -1,4 +1,4 @@
-import { copy } from '../data';
+import { businessJsonLd, copy } from '../data';
 import { useLanguage } from '../data/i18n';
 import ContactDetails from '../components/contact/ContactDetails';
 import LocationMap from '../components/contact/LocationMap';
@@ -9,7 +9,7 @@ import Seo from '../components/ui/Seo';
 /**
  * Contact: the navy page hero, then on Lane White the contact details (with the site's only
  * WhatsApp button) at the inline start and the quote form (#quote) at the inline end, stacked
- * on phones, and the head-office map under both. The only page without a quote band.
+ * on phones, and, in its own section below, the head-office location with the map. The only page without a quote band.
  */
 export default function Contact() {
   const { t } = useLanguage();
@@ -23,9 +23,10 @@ export default function Contact() {
             <ContactDetails />
             <QuoteForm />
           </div>
-          <LocationMap className="mt-20 lg:mt-32" />
         </div>
       </div>
+      <LocationMap />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd()) }} />
     </>
   );
 }

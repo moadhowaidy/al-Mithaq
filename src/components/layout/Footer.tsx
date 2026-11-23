@@ -84,9 +84,17 @@ export default function Footer() {
                 </span>
               </a>
             </li>
-            <li className="flex min-h-11 items-start gap-3 pt-2.5 text-background">
-              <MapPin aria-hidden="true" className="mt-1 h-[18px] w-[18px] shrink-0 text-accent" strokeWidth={1.5} />
-              <span>{t(copy.footer.headOffice)}</span>
+            <li>
+              <a
+                href={contact.map.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-start gap-3 pt-2.5"
+              >
+                <MapPin aria-hidden="true" className="mt-1 h-[18px] w-[18px] shrink-0 text-accent" strokeWidth={1.5} />
+                <span className="link-draw">{t(copy.footer.headOffice)}</span>
+                <span className="sr-only"> {t(copy.a11y.newTab)}</span>
+              </a>
             </li>
           </ul>
         </div>

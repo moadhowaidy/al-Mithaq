@@ -357,6 +357,34 @@ export function mapEmbed(lang: Lang): string | null {
   return `https://maps.google.com/maps?q=${lat},${lng}&z=16&hl=${lang}&output=embed`;
 }
 
+/** Google Maps directions to the head office, or null while the coordinates are not confirmed (never route to the city centre). */
+export function directionsLink(): string | null {
+  const { lat, lng } = contact.map;
+  if (lat == null || lng == null) return null;
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+
+/** schema.org LocalBusiness for the Home and Contact pages. `geo` is added only once the coordinates exist. */
+export function businessJsonLd(): Record<string, unknown> {
+  const data: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Mithaq General Supplies',
+    alternateName: 'شركة ميثاق للتجهيزات العامة',
+    url: 'https://al-mithaq.com',
+    logo: 'https://al-mithaq.com/icon-512.png',
+    email: contact.email,
+    telephone: contact.phones[0].tel,
+    address: { '@type': 'PostalAddress', addressLocality: 'Al-Khums', addressCountry: 'LY' },
+    hasMap: contact.map.link,
+  };
+  const { lat, lng } = contact.map;
+  if (lat != null && lng != null) {
+    data.geo = { '@type': 'GeoCoordinates', latitude: lat, longitude: lng };
+  }
+  return data;
+}
+
 /** Same page in the other language: '/ar/products/g2200' → '/en/products/g2200'. Query and hash are kept. */
 export function swapLangInPath(path: string, lang: Lang): string {
   const match = /^\/(ar|en)(?=[/?#]|$)/.exec(path);

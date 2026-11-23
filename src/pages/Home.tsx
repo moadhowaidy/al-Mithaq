@@ -1,4 +1,4 @@
-import { copy } from '../data';
+import { businessJsonLd, copy } from '../data';
 import FeaturedProduct from '../components/home/FeaturedProduct';
 import Hero from '../components/home/Hero';
 import PartnersTeaser from '../components/home/PartnersTeaser';
@@ -21,6 +21,7 @@ export default function Home() {
       <Pledge />
       <PartnersTeaser />
       <QuoteBand />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd()) }} />
     </>
   );
 }

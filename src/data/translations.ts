@@ -184,6 +184,16 @@ export const copy = {
     intro: { ar: "املأ النموذج، وسيُفتح طلبك جاهزاً للإرسال في واتساب أعمال.", en: "Fill in the form and your request opens in WhatsApp Business, ready to send." },
     openedEmail: { ar: "فُتح تطبيق البريد الإلكتروني برسالتك. أرسلها من هناك لإتمام الطلب.", en: "Your email app has opened with your message. Send it there to complete your request." },
   },
+  location: {
+    kicker: { ar: "المقر الرئيسي", en: "Head office" },
+    title: { ar: "موقعنا في مدينة الخمس", en: "Find us in Al-Khums" },
+    lead: { ar: "على ساحل ليبيا المتوسطي، على بعد نحو 120 كم شرق طرابلس.", en: "On Libya's Mediterranean coast, about 120 km east of Tripoli." },
+    city: { ar: "مدينة الخمس، ليبيا", en: "Al-Khums, Libya" },
+    directions: { ar: "احصل على الاتجاهات", en: "Get directions" },
+    openMap: { ar: "افتح في خرائط Google", en: "Open in Google Maps" },
+    newTab: { ar: "يفتح في نافذة جديدة", en: "opens in a new tab" },
+    mapTitle: { ar: "خريطة المقر الرئيسي لشركة ميثاق في مدينة الخمس", en: "Map of Mithaq's head office in Al-Khums" },
+  },
   footer: {
     pages: { ar: "الصفحات", en: "Pages" },
     sectors: { ar: "القطاعات", en: "Sectors" },
