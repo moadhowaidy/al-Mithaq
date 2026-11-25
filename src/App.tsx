@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, Route, Routes, useLocation, useNavigationType, useParams } from 'react-router';
 import { LazyMotion, MotionConfig, domAnimation, m } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import { PAGE_SLUGS, copy, isLang, stripLang } from './data';
 import { LanguageProvider, langFromPath, preferredLang, useIsomorphicLayoutEffect, useLanguage, useLanguageTransition } from './data/i18n';
 import Navbar from './components/layout/Navbar';
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
+          <Analytics />
         </LanguageProvider>
       </MotionConfig>
     </LazyMotion>
